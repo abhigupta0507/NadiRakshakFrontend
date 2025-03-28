@@ -43,7 +43,9 @@ export default function ForgotPasswordScreen() {
       }
 
       Alert.alert("Success", "Password reset link sent to your email");
-      router.replace("/screens/login");
+      
+      router.replace({ pathname: "/screens/verify-reset-otp", params: { email: email } });
+      console.log("Forget password page");
     } catch (error) {
       Alert.alert("Error", error.message);
     } finally {
