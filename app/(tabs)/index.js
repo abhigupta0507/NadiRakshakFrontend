@@ -1,5 +1,5 @@
 import { Text, View } from "react-native";
-import "../global.css";
+import "../../global.css";
 
 export default function Index() {
   return (
@@ -10,7 +10,7 @@ export default function Index() {
         alignItems: "center",
       }}
     >
-      <Text className="text-red">
+      <Text className="text-primary">
         Edit app/index.tsx to edit this screen.
       </Text>
     </View>
