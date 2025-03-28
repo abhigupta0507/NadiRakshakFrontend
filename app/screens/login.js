@@ -44,8 +44,8 @@ export default function LoginScreen() {
       }
 
       // Store tokens
-      await SecureStore.setItem("accessToken", data.accessToken);
-      await SecureStore.setItem("refreshToken", data.refreshToken);
+      await SecureStore.setItemAsync("accessToken", data.accessToken);
+      await SecureStore.setItemAsync("refreshToken", data.refreshToken);
 
       console.log("Login successful:", data);
 

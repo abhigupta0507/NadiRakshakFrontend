@@ -41,7 +41,7 @@ export default function VerifyOTP() {
       console.log(data);
 
       if (response.ok) {
-        await SecureStore.setItem("accessToken", data.accessToken);
+        await SecureStore.setItemAsync("accessToken", data.accessToken);
         console.log("Session Token Stored:", data.accessToken);
 
         Alert.alert("Success", "OTP verified successfully!");

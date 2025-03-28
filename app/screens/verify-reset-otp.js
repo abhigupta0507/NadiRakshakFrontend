@@ -42,7 +42,7 @@ export default function VerifyPasswordResetOTP() {
       const data = await response.json();
 
       if (response.ok) {
-        await SecureStore.setItem("verificationToken", data.verificationToken);
+        await SecureStore.setItemAsync("verificationToken", data.verificationToken);
         console.log("Verification Token Stored:", data.verificationToken);
         Alert.alert("Success", "OTP verified successfully!");
         router.replace({ pathname: "/screens/reset-password", params: { email: email } });
