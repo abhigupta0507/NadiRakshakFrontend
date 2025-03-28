@@ -3,14 +3,16 @@ import { View, TextInput, Button, Text, Alert } from "react-native";
 import { useRouter, useGlobalSearchParams } from "expo-router";
 import * as SecureStore from 'expo-secure-store';
 
+
 import { BackendUrl } from "../../secrets.js";
 
-export default function VerifyOTP() {
+export default function VerifyPasswordResetOTP() {
   const [otp, setOtp] = useState("");
   const router = useRouter();
   const params = useGlobalSearchParams();
   const email = params.email;
 
+  console.log(email);
   if (!email) {
     return (
       <View style={{ padding: 20, paddingTop: 100 }}>
@@ -28,24 +30,23 @@ export default function VerifyOTP() {
     }
 
     try {
-      const response = await fetch(`${BackendUrl}/auth/verify-otp`, {
+      console.log(`opt:${email} , ${otp}`);
+      const response = await fetch(`${BackendUrl}/auth/verify-reset-otp`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        credentials: "include",
         body: JSON.stringify({ email, otp }),
       });
 
       const data = await response.json();
-      console.log(data);
 
       if (response.ok) {
-        await SecureStore.setItem("accessToken", data.accessToken);
-        console.log("Session Token Stored:", data.accessToken);
-
+        await SecureStore.setItem("verificationToken", data.verificationToken);
+        console.log("Verification Token Stored:", data.verificationToken);
         Alert.alert("Success", "OTP verified successfully!");
-        router.push("/home");
+        router.replace({ pathname: "/screens/reset-password", params: { email: email } });
+
       } else {
         Alert.alert("Error", data.message || "Invalid OTP, try again.");
       }
