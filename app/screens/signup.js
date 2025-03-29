@@ -8,12 +8,13 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  Alert,
 } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { useRouter } from "expo-router";
 import { PrimaryButton } from "../components/Button";
 
-import { BackendUrl } from "../../secrets.js"
+import { BackendUrl } from "../../secrets.js";
 
 export default function SignupScreen() {
   const [name, setName] = useState("");
@@ -25,43 +26,36 @@ export default function SignupScreen() {
   const [mobileNumber, setMobileNumber] = useState("");
   const [role, setRole] = useState("user");
   const [errorMessage, setErrorMessage] = useState("");
-  const [otpSent, setOtpSent] = useState(false);
 
   const router = useRouter();
 
   const handleSignup = async () => {
     try {
-      const response = await fetch(
-        `${BackendUrl}/auth/register`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          credentials: "include",
-          body: JSON.stringify({
-            name,
-            email,
-            password,
-            age,
-            city,
-            state: stateName,
-            mobileNumber,
-            role,
-          }), 
-        }
-      );
-  
+      const response = await fetch(`${BackendUrl}/auth/register`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          name,
+          email,
+          password,
+          age,
+          city,
+          state: stateName,
+          mobileNumber,
+          role,
+        }),
+      });
+
       const data = await response.json();
-  
+
       if (!response.ok) {
         throw new Error(data.message || "Signup failed");
       }
-  
-      // Assuming OTP is sent successfully
-      setOtpSent(true);
-      alert("OTP sent successfully to your email. Please verify OTP.");
-  
-      // Optionally, navigate to OTP verification screen:
-      // router.replace('/verify-otp');
+
+      // OTP sent successfully
+      Alert.alert("OTP Sent", "Please check your email to verify your account.");
+      router.push({ pathname: "/screens/verify-otp", params: { email } });
     } catch (error) {
       console.error("Signup error:", error.message);
       setErrorMessage(error.message);
@@ -94,9 +88,6 @@ export default function SignupScreen() {
 
             {/* Signup Form */}
             <View>
-              <Text className="text-2xl font-semibold mb-6 text-gray-800">
-                {/* Sign Up */}
-              </Text>
               {errorMessage ? (
                 <Text className="text-red-600 mb-4">{errorMessage}</Text>
               ) : null}
@@ -192,17 +183,6 @@ export default function SignupScreen() {
                 onPress={handleSignup}
                 className="mb-4"
               />
-
-              {/* If OTP is sent, show link to OTP verification screen */}
-              {otpSent && (
-                <View className="items-center">
-                  <TouchableOpacity onPress={() => router.replace({ pathname: "/screens/verify-otp", params: { email: email } })}>
-                    <Text className="text-blue-600 font-semibold">
-                      Verify OTP
-                    </Text>
-                  </TouchableOpacity>
-                </View>
-              )}
 
               {/* Link to Login */}
               <View className="flex-row justify-center mt-4">
