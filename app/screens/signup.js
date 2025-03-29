@@ -8,13 +8,13 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-  Alert,
 } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { useRouter } from "expo-router";
 import { PrimaryButton } from "../components/Button";
 
 import { BackendUrl } from "../../secrets.js";
+import ToastComponent, { showToast } from "../components/Toast.js"; //  Import Toast
 
 export default function SignupScreen() {
   const [name, setName] = useState("");
@@ -25,7 +25,6 @@ export default function SignupScreen() {
   const [stateName, setStateName] = useState("");
   const [mobileNumber, setMobileNumber] = useState("");
   const [role, setRole] = useState("user");
-  const [errorMessage, setErrorMessage] = useState("");
 
   const router = useRouter();
 
@@ -53,12 +52,16 @@ export default function SignupScreen() {
         throw new Error(data.message || "Signup failed");
       }
 
-      // OTP sent successfully
-      Alert.alert("OTP Sent", "Please check your email to verify your account.");
-      router.push({ pathname: "/screens/verify-otp", params: { email } });
+      //  Show success toast
+      showToast("success", "OTP Sent", "Please check your email to verify your account.");
+
+      // Navigate to OTP verification screen after a short delay
+      setTimeout(() => {
+        router.push({ pathname: "/screens/verify-otp", params: { email } });
+      }, 1500);
     } catch (error) {
       console.error("Signup error:", error.message);
-      setErrorMessage(error.message);
+      showToast("error", "Signup Failed", error.message); //  Show error toast
     }
   };
 
@@ -88,10 +91,6 @@ export default function SignupScreen() {
 
             {/* Signup Form */}
             <View>
-              {errorMessage ? (
-                <Text className="text-red-600 mb-4">{errorMessage}</Text>
-              ) : null}
-
               {/* Name Input */}
               <View className="mb-4">
                 <TextInput
@@ -195,6 +194,9 @@ export default function SignupScreen() {
           </View>
         </KeyboardAvoidingView>
       </ScrollView>
+
+      {/*  Toast Component (must be at root level) */}
+      <ToastComponent />
     </SafeAreaView>
   );
 }

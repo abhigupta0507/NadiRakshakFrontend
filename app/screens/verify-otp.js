@@ -3,7 +3,6 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import {
   View,
   Text,
-  Alert,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -15,6 +14,7 @@ import OTPInput from "../components/Otp.js"; // Reusable OTP component
 import { PrimaryButton } from "../components/Button"; // Reusable button component
 
 import { BackendUrl } from "../../secrets.js";
+import ToastComponent, { showToast } from "../components/Toast.js"; //  Import Toast
 
 export default function VerifyOTP() {
   const [otp, setOtp] = useState("");
@@ -34,7 +34,7 @@ export default function VerifyOTP() {
 
   const handleVerifyOTP = async () => {
     if (otp.length !== 6) {
-      Alert.alert("Invalid OTP", "OTP must be 6 digits long.");
+      showToast("error", "Invalid OTP", "OTP must be 6 digits long."); //  Show error toast
       return;
     }
 
@@ -52,13 +52,14 @@ export default function VerifyOTP() {
 
       if (response.ok) {
         await SecureStore.setItemAsync("accessToken", data.accessToken);
-        Alert.alert("Success", "OTP verified successfully!");
-        router.push("/home");
+        showToast("success", "OTP Verified", "Redirecting to home..."); //  Show success toast
+
+        setTimeout(() => router.push("/home"), 1500); // Delay to show toast
       } else {
-        Alert.alert("Error", data.message || "Invalid OTP, try again.");
+        showToast("error", "OTP Error", data.message || "Invalid OTP, try again."); //  Show error toast
       }
     } catch (error) {
-      Alert.alert("Error", "Something went wrong, please try again.");
+      showToast("error", "Error", "Something went wrong, please try again."); //  Show error toast
     }
   };
 
@@ -87,6 +88,9 @@ export default function VerifyOTP() {
           <PrimaryButton title="Verify OTP" onPress={handleVerifyOTP} className="mt-6" />
         </KeyboardAvoidingView>
       </ScrollView>
+
+      {/*  Toast Component */}
+      <ToastComponent />
     </SafeAreaView>
   );
 }

@@ -8,13 +8,13 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-  Alert,
 } from "react-native";
 import { Link, useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { PrimaryButton } from "../components/Button.js";
 import { Mail } from "lucide-react-native";
 import { BackendUrl } from "../../secrets.js";
+import ToastComponent, { showToast } from "../components/Toast.js"; // Import Toast
 
 export default function ForgotPasswordScreen() {
   const [email, setEmail] = useState("");
@@ -23,7 +23,7 @@ export default function ForgotPasswordScreen() {
 
   const handleResetPassword = async () => {
     if (!email) {
-      Alert.alert("Error", "Please enter your email");
+      showToast("error", "Error", "Please enter your email"); // Show error toast
       return;
     }
     
@@ -42,12 +42,13 @@ export default function ForgotPasswordScreen() {
         throw new Error(data.message || "Something went wrong");
       }
 
-      Alert.alert("Success", "Password reset link sent to your email");
-      
-      router.replace({ pathname: "/screens/verify-reset-otp", params: { email: email } });
-      console.log("Forget password page");
+      showToast("success", "Success", "Password reset link sent to your email"); // Show success toast
+
+      setTimeout(() => {
+        router.replace({ pathname: "/screens/verify-reset-otp", params: { email: email } });
+      }, 1500); // Slight delay to let the toast show
     } catch (error) {
-      Alert.alert("Error", error.message);
+      showToast("error", "Error", error.message); // Show error toast
     } finally {
       setLoading(false);
     }
@@ -110,6 +111,9 @@ export default function ForgotPasswordScreen() {
           </View>
         </KeyboardAvoidingView>
       </ScrollView>
+
+      {/* Toast Component (must be at root level) */}
+      <ToastComponent />
     </SafeAreaView>
   );
 }
