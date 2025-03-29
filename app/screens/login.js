@@ -1,8 +1,6 @@
 import React, { useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
-import * as SecureStore from 'expo-secure-store';
-
-
+import * as SecureStore from "expo-secure-store";
 import {
   View,
   Text,
@@ -17,14 +15,14 @@ import { StatusBar } from "expo-status-bar";
 import { PrimaryButton } from "../components/Button";
 import { Lock, Mail, EyeOff, Eye } from "lucide-react-native";
 
-import { BackendUrl } from "../../secrets.js"
+import { BackendUrl } from "../../secrets.js";
+import ToastComponent, { showToast } from "../components/Toast.js"; // Import Toast Component
 
 export default function LoginScreen() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const router = useRouter();
-
 
   const handleLogin = async () => {
     try {
@@ -49,16 +47,19 @@ export default function LoginScreen() {
 
       console.log("Login successful:", data);
 
+      // Show success toast ✅
+      showToast("success", "Login Successful", "Redirecting to home...");
+
       // Navigate to Home screen
-      router.replace("/home");
+      setTimeout(() => router.replace("/home"), 1500); // Slight delay to show toast
     } catch (error) {
       console.error("Login error:", error.message);
-      alert(error.message);
+      showToast("error", "Login Failed", error.message); // ✅ Show error toast
     }
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-white ">
+    <SafeAreaView className="flex-1 bg-white">
       <StatusBar style="dark" />
       <ScrollView
         contentContainerStyle={{ flexGrow: 1 }}
@@ -83,9 +84,7 @@ export default function LoginScreen() {
 
             {/* Login Form */}
             <View>
-              <Text className="text-2xl font-semibold mb-6 text-gray-800">
-                {/* Welcome Back */}
-              </Text>
+              <Text className="text-2xl font-semibold mb-6 text-gray-800"></Text>
 
               {/* Email Input */}
               <View className="mb-4">
@@ -156,6 +155,9 @@ export default function LoginScreen() {
           </View>
         </KeyboardAvoidingView>
       </ScrollView>
+
+      {/* Toast Component (must be at root level) */}
+      <ToastComponent />
     </SafeAreaView>
   );
 }
