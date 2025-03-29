@@ -47,14 +47,14 @@ export default function LoginScreen() {
 
       console.log("Login successful:", data);
 
-      // Show success toast ✅
+      // Show success toast 
       showToast("success", "Login Successful", "Redirecting to home...");
 
       // Navigate to Home screen
       setTimeout(() => router.replace("/home"), 1500); // Slight delay to show toast
     } catch (error) {
       console.error("Login error:", error.message);
-      showToast("error", "Login Failed", error.message); // ✅ Show error toast
+      showToast("error", "Login Failed", error.message); //  Show error toast
     }
   };
 
