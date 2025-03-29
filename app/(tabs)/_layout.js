@@ -7,7 +7,7 @@ export default function Layout() {
     <Tabs
   screenOptions={{
     tabBarStyle: {
-      backgroundColor: "hsl(var(--background))",
+      backgroundColor: "#FFFFFF",
       borderTopWidth: 0,
       elevation: 0,
       shadowOpacity: 0,
@@ -22,6 +22,7 @@ export default function Layout() {
       shadowOffset: { width: 0, height: -2 },
       shadowRadius: 2,
       marginBottom: -3,
+      backdropFilter: "blur(10px)",
     },
     tabBarLabelStyle: {
       fontSize: 10,
