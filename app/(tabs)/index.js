@@ -11,7 +11,7 @@ export default function Index() {
         alignItems: "center",
       }}
     >
-      <Link href={"../screens/login"}>
+      <Link href={"../screens/campaign-details.js"}>
         <Text className="text-primary">
           Edit app/index.tsx to edit this screen.
         </Text>
