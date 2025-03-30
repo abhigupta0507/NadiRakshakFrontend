@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { 
   View, 
   Text, 
@@ -12,19 +12,22 @@ import {
 } from "react-native";
 import ToastComponent, { showToast } from "../components/Toast";
 import * as SecureStore from "expo-secure-store";
-import { useGlobalSearchParams, useRouter } from "expo-router"; // Added router import
+import { useFocusEffect, useGlobalSearchParams, useRouter } from "expo-router";
 
-const BackendUrl = "https://nadirakshak-backend.onrender.com/api/v1"; // Extracted base URL
+const BackendUrl = "https://nadirakshak-backend.onrender.com/api/v1";
 
 const CampaignDetails = ({ route }) => {
-  const router = useRouter(); // Added router
+  const router = useRouter();
   const params = useGlobalSearchParams();
-  const { campaignId } = params;  const [campaign, setCampaign] = useState(null);
+  const { campaignId } = params;
+  
+  const [campaign, setCampaign] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isParticipant, setIsParticipant] = useState(false);
+  const [isCreator, setIsCreator] = useState(false);
   const [totalParticipantWithoutUser, settotalParticipantWithoutUser] = useState(0);
   const [joinLeaveLoading, setJoinLeaveLoading] = useState(false);
-  const [authToken, setAuthToken] = useState(null); // Added state for token
+  const [authToken, setAuthToken] = useState(null);
 
   // Get auth token on component mount
   useEffect(() => {
@@ -47,20 +50,28 @@ const CampaignDetails = ({ route }) => {
     getAuthToken();
   }, []);
 
-  // Fetch campaign details when token is available
+// Add a state to track screen focus
+  const [isFocused, setIsFocused] = useState(false);
+
+  // Update useFocusEffect implementation
+  useFocusEffect(
+    useCallback(() => {
+      setIsFocused(true);
+      return () => {
+        setIsFocused(false);
+      };
+    }, [])
+  );
+
+  // Replace your existing useEffect with this one
   useEffect(() => {
-    if (authToken) {
+    if (authToken && isFocused) {
       fetchCampaignDetails();
     }
-  }, [authToken, campaignId]);
+  }, [authToken, isFocused, joinLeaveLoading]);
 
-  useEffect(() => {
-    if (authToken && joinLeaveLoading === false) {
-      fetchCampaignDetails();
-    }
-  }, [joinLeaveLoading]);
-
-  const fetchCampaignDetails = async () => {
+  // Memoize fetchCampaignDetails
+  const fetchCampaignDetails = useCallback(async () => {
     try {
       const response = await fetch(`${BackendUrl}/campaigns/${campaignId}`, {
         method: "GET",
@@ -75,6 +86,7 @@ const CampaignDetails = ({ route }) => {
       if (response.ok) {
         setCampaign(data.data.campaign);
         setIsParticipant(data.data.isParticipant);
+        setIsCreator(data.data.isCreator);
         
         if (data.data.isParticipant) {
           settotalParticipantWithoutUser(data.data.campaign.participants.length - 1);
@@ -90,7 +102,7 @@ const CampaignDetails = ({ route }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [authToken, campaignId]); // Include dependencies used inside
 
   const handleJoin = async () => {
     setJoinLeaveLoading(true);
@@ -164,6 +176,13 @@ const CampaignDetails = ({ route }) => {
     } finally {
       setJoinLeaveLoading(false);
     }
+  };
+
+  const handleUpdateCampaign = () => {
+    router.push({
+      pathname: "../screens/update-campaign",
+      params: { campaignId }
+    });
   };
 
   const formatDate = (dateString) => {
@@ -287,32 +306,74 @@ const CampaignDetails = ({ route }) => {
         </View>
       </ScrollView>
 
-      {/* Fixed bottom button */}
+      {/* Fixed bottom button or buttons */}
       <View className="absolute bottom-0 left-0 right-0 bg-white px-5 py-4 border-t border-gray-100 shadow-lg">
-        <TouchableOpacity
-          onPress={isParticipant ? handleLeave : handleJoin}
-          disabled={joinLeaveLoading}
-          className={`py-3.5 rounded-xl ${
-            joinLeaveLoading 
-              ? "bg-gray-400" 
-              : isParticipant 
-                ? "bg-red-500" 
-                : "bg-blue-600"
-          }`}
-        >
-          {joinLeaveLoading ? (
-            <View className="flex-row justify-center items-center">
-              <ActivityIndicator size="small" color="white" />
-              <Text className="text-white text-base font-bold ml-2">
-                {isParticipant ? "Leaving..." : "Joining..."}
+        {isCreator ? (
+          // Show both buttons for creator
+          <View className="flex-row space-x-2">
+            {/* Join/Leave Button */}
+            <TouchableOpacity
+              onPress={isParticipant ? handleLeave : handleJoin}
+              disabled={joinLeaveLoading}
+              className={`flex-1 py-3.5 rounded-xl ${
+                joinLeaveLoading 
+                  ? "bg-gray-400" 
+                  : isParticipant 
+                    ? "bg-red-500" 
+                    : "bg-blue-600"
+              }`}
+            >
+              {joinLeaveLoading ? (
+                <View className="flex-row justify-center items-center">
+                  <ActivityIndicator size="small" color="white" />
+                  <Text className="text-white text-base font-bold ml-2">
+                    {isParticipant ? "Leaving..." : "Joining..."}
+                  </Text>
+                </View>
+              ) : (
+                <Text className="text-center text-white text-base font-bold">
+                  {isParticipant ? "Leave Campaign" : "Join Campaign"}
+                </Text>
+              )}
+            </TouchableOpacity>
+            
+            {/* Update Button */}
+            <TouchableOpacity
+              onPress={handleUpdateCampaign}
+              className="flex-1 py-3.5 rounded-xl bg-green-600"
+            >
+              <Text className="text-center text-white text-base font-bold">
+                Update Campaign
               </Text>
-            </View>
-          ) : (
-            <Text className="text-center text-white text-base font-bold">
-              {isParticipant ? "Leave Campaign" : "Join Campaign"}
-            </Text>
-          )}
-        </TouchableOpacity>
+            </TouchableOpacity>
+          </View>
+        ) : (
+          // Show only Join/Leave button for non-creators
+          <TouchableOpacity
+            onPress={isParticipant ? handleLeave : handleJoin}
+            disabled={joinLeaveLoading}
+            className={`py-3.5 rounded-xl ${
+              joinLeaveLoading 
+                ? "bg-gray-400" 
+                : isParticipant 
+                  ? "bg-red-500" 
+                  : "bg-blue-600"
+            }`}
+          >
+            {joinLeaveLoading ? (
+              <View className="flex-row justify-center items-center">
+                <ActivityIndicator size="small" color="white" />
+                <Text className="text-white text-base font-bold ml-2">
+                  {isParticipant ? "Leaving..." : "Joining..."}
+                </Text>
+              </View>
+            ) : (
+              <Text className="text-center text-white text-base font-bold">
+                {isParticipant ? "Leave Campaign" : "Join Campaign"}
+              </Text>
+            )}
+          </TouchableOpacity>
+        )}
       </View>
       <ToastComponent />
     </SafeAreaView>
