@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { 
   View, 
   Text, 
@@ -12,19 +12,23 @@ import {
 } from "react-native";
 import ToastComponent, { showToast } from "../components/Toast";
 import * as SecureStore from "expo-secure-store";
-import { useRouter } from "expo-router"; // Added router import
+import { useFocusEffect, useGlobalSearchParams, useRouter } from "expo-router";
 
-const BackendUrl = "https://nadirakshak-backend.onrender.com/api/v1"; // Extracted base URL
+const BackendUrl = "https://nadirakshak-backend.onrender.com/api/v1";
 
 const CampaignDetails = ({ route }) => {
-  const router = useRouter(); // Added router
-  const campaignId = "67e7a5f02521682644401fc8";
+  const router = useRouter();
+  const params = useGlobalSearchParams();
+  const { campaignId } = params;
+  
   const [campaign, setCampaign] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isParticipant, setIsParticipant] = useState(false);
+  const [isCreator, setIsCreator] = useState(false);
   const [totalParticipantWithoutUser, settotalParticipantWithoutUser] = useState(0);
   const [joinLeaveLoading, setJoinLeaveLoading] = useState(false);
-  const [authToken, setAuthToken] = useState(null); // Added state for token
+  const [deleteLoading, setDeleteLoading] = useState(false);
+  const [authToken, setAuthToken] = useState(null);
 
   // Get auth token on component mount
   useEffect(() => {
@@ -47,20 +51,28 @@ const CampaignDetails = ({ route }) => {
     getAuthToken();
   }, []);
 
-  // Fetch campaign details when token is available
+  // Add a state to track screen focus
+  const [isFocused, setIsFocused] = useState(false);
+
+  // Update useFocusEffect implementation
+  useFocusEffect(
+    useCallback(() => {
+      setIsFocused(true);
+      return () => {
+        setIsFocused(false);
+      };
+    }, [])
+  );
+
+  // Replace your existing useEffect with this one
   useEffect(() => {
-    if (authToken) {
+    if (authToken && isFocused) {
       fetchCampaignDetails();
     }
-  }, [authToken, campaignId]);
+  }, [authToken, isFocused, joinLeaveLoading]);
 
-  useEffect(() => {
-    if (authToken && joinLeaveLoading === false) {
-      fetchCampaignDetails();
-    }
-  }, [joinLeaveLoading]);
-
-  const fetchCampaignDetails = async () => {
+  // Memoize fetchCampaignDetails
+  const fetchCampaignDetails = useCallback(async () => {
     try {
       const response = await fetch(`${BackendUrl}/campaigns/${campaignId}`, {
         method: "GET",
@@ -75,6 +87,7 @@ const CampaignDetails = ({ route }) => {
       if (response.ok) {
         setCampaign(data.data.campaign);
         setIsParticipant(data.data.isParticipant);
+        setIsCreator(data.data.isCreator);
         
         if (data.data.isParticipant) {
           settotalParticipantWithoutUser(data.data.campaign.participants.length - 1);
@@ -90,7 +103,7 @@ const CampaignDetails = ({ route }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [authToken, campaignId]); // Include dependencies used inside
 
   const handleJoin = async () => {
     setJoinLeaveLoading(true);
@@ -166,6 +179,89 @@ const CampaignDetails = ({ route }) => {
     }
   };
 
+  const handleUpdateCampaign = () => {
+    router.push({
+      pathname: "../screens/update-campaign",
+      params: { campaignId }
+    });
+  };
+
+  // Add the delete campaign functionality
+  const handleDeleteCampaign = () => {
+    // Check if campaign is active before showing the delete confirmation
+    if (campaign.status === 'active') {
+      showToast("error", "Cannot Delete", "Active campaigns cannot be deleted. Please deactivate the campaign first.");
+      return;
+    }
+    
+    Alert.alert(
+      "Delete Campaign",
+      "Are you sure you want to delete this campaign? This action cannot be undone.",
+      [
+        {
+          text: "Cancel",
+          style: "cancel"
+        },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: confirmDeleteCampaign
+        }
+      ]
+    );
+  };
+
+  const confirmDeleteCampaign = async () => {
+    setDeleteLoading(true);
+    try {
+      const response = await fetch(`${BackendUrl}/campaigns/${campaignId}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
+        },
+      });
+      
+      if (response.status === 204) {
+        // Handle 204 No Content response
+        showToast("success", "Deleted Successfully", "Campaign has been deleted");
+        router.replace("/campaign");
+        return;
+      }
+      
+      // For other responses, try to parse the JSON (if any)
+      let result;
+      try {
+        // Only try to parse JSON if there's content to parse
+        if (response.headers.get("content-length") !== "0") {
+          result = await response.json();
+        }
+      } catch (parseError) {
+        console.error("Error parsing response:", parseError);
+        // Continue with the response handling even if JSON parsing fails
+      }
+      
+      if (response.ok) {
+        showToast("success", "Deleted Successfully", "Campaign has been deleted");
+        router.push("/campaign");
+      } else {
+        // Check if we have a result with message
+        const errorMessage = result?.message || "Failed to delete campaign";
+        
+        if (errorMessage.toLowerCase().includes("upcoming")) {
+          showToast("error", "Cannot Delete", "Only upcoming campaigns can be deleted.");
+        } else {
+          showToast("error", "Error", errorMessage);
+        }
+      }
+    } catch (error) {
+      console.error("Delete Campaign Error:", error);
+      showToast("error", "Error", "Failed to connect to server");
+    } finally {
+      setDeleteLoading(false);
+    }
+  };
+
   const formatDate = (dateString) => {
     const options = { day: 'numeric', month: 'short', year: 'numeric' };
     return new Date(dateString).toLocaleDateString(undefined, options);
@@ -179,7 +275,7 @@ const CampaignDetails = ({ route }) => {
       </View>
     );
   }
-
+  
   return (
     <SafeAreaView className="flex-1 bg-white">
       <StatusBar barStyle="dark-content" />
@@ -187,7 +283,7 @@ const CampaignDetails = ({ route }) => {
         <View className="relative">
           <Image
             source={{ 
-              uri: "https://images.pexels.com/photos/2387873/pexels-photo-2387873.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" 
+              uri: campaign.image 
             }}
             className="w-full h-64"
             resizeMode="cover"
@@ -195,19 +291,6 @@ const CampaignDetails = ({ route }) => {
           
           {/* Header overlay for text legibility */}
           <View className="absolute bottom-0 left-0 right-0 h-32 bg-black opacity-50" />
-          
-          {/* Navigation buttons */}
-          <View className="absolute top-4 left-4 right-4 flex-row justify-between items-center">
-            <TouchableOpacity 
-              className="bg-white/30 p-2 rounded-full"
-              onPress={() => router.back()}
-            >
-              <Text className="text-white font-bold">←</Text>
-            </TouchableOpacity>
-            <TouchableOpacity className="bg-white/30 p-2 rounded-full">
-              <Text className="text-white font-bold">⋮</Text>
-            </TouchableOpacity>
-          </View>
           
           {/* Title on image */}
           <View className="absolute bottom-4 left-4 right-4">
@@ -222,7 +305,7 @@ const CampaignDetails = ({ route }) => {
             </View>
           </View>
         </View>
-
+  
         {/* Campaign info cards */}
         <View className="px-5 py-6">
           {/* Date and Location card */}
@@ -254,11 +337,11 @@ const CampaignDetails = ({ route }) => {
               </View>
             </View>
           </View>
-
+  
           {/* About section */}
           <Text className="text-lg font-semibold text-gray-800 mb-2">About</Text>
           <Text className="text-gray-600 leading-6">{campaign.description}</Text>
-
+  
           {/* Campaign details section */}
           <View className="mt-8 mb-4">
             <Text className="text-lg font-semibold text-gray-800 mb-3">Campaign Details</Text>
@@ -285,6 +368,22 @@ const CampaignDetails = ({ route }) => {
                 <Text className="text-gray-600">Max Participants</Text>
                 <Text className="text-gray-800 font-medium">{campaign.maxParticipants}</Text>
               </View>
+              <View className="h-0.5 bg-gray-100 my-2" />
+              
+              <View className="flex-row justify-between items-center py-2">
+                <Text className="text-gray-600">Status</Text>
+                <View className={`px-2 py-1 rounded-full ${
+                  campaign.status === 'active' ? 'bg-green-100' : 
+                  campaign.status === 'upcoming' ? 'bg-blue-100' : 'bg-gray-100'
+                }`}>
+                  <Text className={`text-xs font-medium ${
+                    campaign.status === 'active' ? 'text-green-700' : 
+                    campaign.status === 'upcoming' ? 'text-blue-700' : 'text-gray-700'
+                  }`}>
+                    {campaign.status?.charAt(0).toUpperCase() + campaign.status?.slice(1) || "Unknown"}
+                  </Text>
+                </View>
+              </View>
             </View>
           </View>
           
@@ -299,33 +398,104 @@ const CampaignDetails = ({ route }) => {
           </View>
         </View>
       </ScrollView>
-
-      {/* Fixed bottom button */}
+  
+      {/* Fixed bottom button or buttons */}
       <View className="absolute bottom-0 left-0 right-0 bg-white px-5 py-4 border-t border-gray-100 shadow-lg">
-        <TouchableOpacity
-          onPress={isParticipant ? handleLeave : handleJoin}
-          disabled={joinLeaveLoading}
-          className={`py-3.5 rounded-xl ${
-            joinLeaveLoading 
-              ? "bg-gray-400" 
-              : isParticipant 
-                ? "bg-red-500" 
-                : "bg-blue-600"
-          }`}
-        >
-          {joinLeaveLoading ? (
-            <View className="flex-row justify-center items-center">
-              <ActivityIndicator size="small" color="white" />
-              <Text className="text-white text-base font-bold ml-2">
-                {isParticipant ? "Leaving..." : "Joining..."}
-              </Text>
+        {isCreator ? (
+          // Creator options
+          <View className="space-y-2">
+            {/* First row - Update & Delete */}
+            <View className="flex-row space-x-2">
+              {/* Update Button */}
+              <TouchableOpacity
+                onPress={handleUpdateCampaign}
+                className="flex-1 py-3.5 rounded-xl bg-green-600"
+              >
+                <Text className="text-center text-white text-base font-bold">
+                  Update Campaign
+                </Text>
+              </TouchableOpacity>
+              
+              {/* Delete Button */}
+              <TouchableOpacity
+                onPress={handleDeleteCampaign}
+                disabled={deleteLoading || campaign.status === 'active'}
+                className={`flex-1 py-3.5 rounded-xl ${
+                  deleteLoading 
+                    ? "bg-gray-400" 
+                    : campaign.status === 'active'
+                      ? "bg-gray-300"
+                      : "bg-red-600"
+                }`}
+              >
+                {deleteLoading ? (
+                  <View className="flex-row justify-center items-center">
+                    <ActivityIndicator size="small" color="white" />
+                    <Text className="text-white text-base font-bold ml-2">
+                      Deleting...
+                    </Text>
+                  </View>
+                ) : (
+                  <Text className="text-center text-white text-base font-bold">
+                    Delete Campaign
+                  </Text>
+                )}
+              </TouchableOpacity>
             </View>
-          ) : (
-            <Text className="text-center text-white text-base font-bold">
-              {isParticipant ? "Leave Campaign" : "Join Campaign"}
-            </Text>
-          )}
-        </TouchableOpacity>
+            
+            {/* Second row - Join/Leave */}
+            <TouchableOpacity
+              onPress={isParticipant ? handleLeave : handleJoin}
+              disabled={joinLeaveLoading}
+              className={`py-3.5 rounded-xl ${
+                joinLeaveLoading 
+                  ? "bg-gray-400" 
+                  : isParticipant 
+                    ? "bg-red-500" 
+                    : "bg-blue-600"
+              }`}
+            >
+              {joinLeaveLoading ? (
+                <View className="flex-row justify-center items-center">
+                  <ActivityIndicator size="small" color="white" />
+                  <Text className="text-white text-base font-bold ml-2">
+                    {isParticipant ? "Leaving..." : "Joining..."}
+                  </Text>
+                </View>
+              ) : (
+                <Text className="text-center text-white text-base font-bold">
+                  {isParticipant ? "Leave Campaign" : "Join Campaign"}
+                </Text>
+              )}
+            </TouchableOpacity>
+          </View>
+        ) : (
+          // Non-creator - single Join/Leave button
+          <TouchableOpacity
+            onPress={isParticipant ? handleLeave : handleJoin}
+            disabled={joinLeaveLoading}
+            className={`py-3.5 rounded-xl ${
+              joinLeaveLoading 
+                ? "bg-gray-400" 
+                : isParticipant 
+                  ? "bg-red-500" 
+                  : "bg-blue-600"
+            }`}
+          >
+            {joinLeaveLoading ? (
+              <View className="flex-row justify-center items-center">
+                <ActivityIndicator size="small" color="white" />
+                <Text className="text-white text-base font-bold ml-2">
+                  {isParticipant ? "Leaving..." : "Joining..."}
+                </Text>
+              </View>
+            ) : (
+              <Text className="text-center text-white text-base font-bold">
+                {isParticipant ? "Leave Campaign" : "Join Campaign"}
+              </Text>
+            )}
+          </TouchableOpacity>
+        )}
       </View>
       <ToastComponent />
     </SafeAreaView>
