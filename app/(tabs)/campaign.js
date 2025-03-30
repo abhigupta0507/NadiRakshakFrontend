@@ -99,6 +99,36 @@ export default function CampaignsScreen() {
           <Ionicons name="add" size={24} color="black" />
         </TouchableOpacity>
       </View>
+      <View className="flex-1 bg-gray-100">
+        {/* Header with Plus Button */}
+        <View className="relative">
+          <Header />
+          
+          <TouchableOpacity
+            onPress={() => router.push("/screens/CreateCampaign")}
+            style={{
+            position: "absolute",
+            top: "40%", // Align with text
+            transform: [{ translateY: -10 }], // Adjust for centering,
+            right: 30,
+            backgroundColor: "white",
+            borderRadius: 25,
+            width: 40,
+            height: 40,
+            justifyContent: "center",
+            alignItems: "center",
+            shadowColor: "#000",
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.2,
+            shadowRadius: 4,
+            elevation: 5, // for Android shadow
+          }}
+        >
+          <Ionicons name="add" size={24} color="black" />
+        </TouchableOpacity>
+
+          
+        </View>
 
       {/* Campaign List */}
       {loading ? (
@@ -156,5 +186,16 @@ export default function CampaignsScreen() {
         </ScrollView>
       )}
     </View>
+        {/* Campaign List */}
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{ paddingBottom: 80 }}
+        >
+          {campaigns.map((campaign, index) => (
+            <CampaignCard key={index} {...campaign} />
+          ))}
+        </ScrollView>
+      </View>
+      
   );
 }

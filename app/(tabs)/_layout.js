@@ -66,6 +66,7 @@ export default function Layout() {
         options={{
           title: "Camera",
           tabBarLabel: "", // No label for camera tab
+          tabBarStyle: { display: "none" }, 
           tabBarIcon: ({ focused, size }) => (
             <View 
               className=""
