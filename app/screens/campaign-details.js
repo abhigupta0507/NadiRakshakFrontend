@@ -12,14 +12,14 @@ import {
 } from "react-native";
 import ToastComponent, { showToast } from "../components/Toast";
 import * as SecureStore from "expo-secure-store";
-import { useRouter } from "expo-router"; // Added router import
+import { useGlobalSearchParams, useRouter } from "expo-router"; // Added router import
 
 const BackendUrl = "https://nadirakshak-backend.onrender.com/api/v1"; // Extracted base URL
 
 const CampaignDetails = ({ route }) => {
   const router = useRouter(); // Added router
-  const campaignId = "67e7a5f02521682644401fc8";
-  const [campaign, setCampaign] = useState(null);
+  const params = useGlobalSearchParams();
+  const { campaignId } = params;  const [campaign, setCampaign] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isParticipant, setIsParticipant] = useState(false);
   const [totalParticipantWithoutUser, settotalParticipantWithoutUser] = useState(0);
@@ -187,7 +187,7 @@ const CampaignDetails = ({ route }) => {
         <View className="relative">
           <Image
             source={{ 
-              uri: "https://images.pexels.com/photos/2387873/pexels-photo-2387873.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" 
+              uri: campaign.image 
             }}
             className="w-full h-64"
             resizeMode="cover"
@@ -195,19 +195,6 @@ const CampaignDetails = ({ route }) => {
           
           {/* Header overlay for text legibility */}
           <View className="absolute bottom-0 left-0 right-0 h-32 bg-black opacity-50" />
-          
-          {/* Navigation buttons */}
-          <View className="absolute top-4 left-4 right-4 flex-row justify-between items-center">
-            <TouchableOpacity 
-              className="bg-white/30 p-2 rounded-full"
-              onPress={() => router.back()}
-            >
-              <Text className="text-white font-bold">←</Text>
-            </TouchableOpacity>
-            <TouchableOpacity className="bg-white/30 p-2 rounded-full">
-              <Text className="text-white font-bold">⋮</Text>
-            </TouchableOpacity>
-          </View>
           
           {/* Title on image */}
           <View className="absolute bottom-4 left-4 right-4">
