@@ -33,7 +33,19 @@
           "backgroundColor": "#ffffff"
         }
       ],
-      "expo-secure-store"
+      "expo-secure-store",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow Nadi Rakshak to access your camera to capture pollution evidence."
+        }
+      ],
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Allow Nadi Rakshak to use your location to accurately report pollution incidents."
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true
