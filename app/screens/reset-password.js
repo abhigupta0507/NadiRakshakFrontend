@@ -11,32 +11,34 @@ import {
 import { StatusBar } from "expo-status-bar";
 import { useRouter } from "expo-router";
 import * as SecureStore from "expo-secure-store";
-import ToastComponent, { showToast } from "../components/Toast"; //  Toast Component
-import { PrimaryButton } from "../components/Button"; //  Reusable Button
-import { Lock } from "lucide-react-native"; //  Password Icon
+import ToastComponent, { showToast } from "../components/Toast"; // Toast Component
+import { PrimaryButton } from "../components/Button"; // Reusable Button
+import { Lock } from "lucide-react-native"; // Password Icon
 import { BackendUrl } from "../../secrets.js";
 
-export default function ResetPassword() {
+export default function ResetPasswordScreen() {
   const [newPassword, setNewPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState(""); //  Added confirm password
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
 
   const handleResetPassword = async () => {
     if (newPassword.length < 6) {
-      showToast("error", "Invalid Password", "Password must be at least 6 characters long."); //  Error toast
+      showToast("error", "Invalid Password", "Password must be at least 6 characters long.");
       return;
     }
 
     if (newPassword !== confirmPassword) {
-      showToast("error", "Password Mismatch", "Both passwords must be the same."); //  Error toast
+      showToast("error", "Password Mismatch", "Both passwords must be the same.");
       return;
     }
 
+    setLoading(true);
     try {
       // Get verification token from SecureStore
       const verificationToken = await SecureStore.getItemAsync("verificationToken");
       if (!verificationToken) {
-        showToast("error", "Error", "Verification token is missing. Please verify OTP again."); //  Error toast
+        showToast("error", "Error", "Verification token is missing. Please verify OTP again.");
         return;
       }
 
@@ -51,75 +53,82 @@ export default function ResetPassword() {
       const data = await response.json();
 
       if (response.ok) {
-        showToast("success", "Success", "Password reset successfully! Redirecting..."); //  Success toast
-
-        setTimeout(() => {
-          router.push("/login");
-        }, 1500);
+        showToast("success", "Success", "Password reset successfully! Redirecting...");
+        setTimeout(() => router.push("/login"), 1500);
       } else {
-        showToast("error", "Error", data.message || "Failed to reset password."); //  Error toast
+        showToast("error", "Error", data.message || "Failed to reset password.");
       }
     } catch (error) {
-      console.error("Password Reset Error:", error);
-      showToast("error", "Error", "Something went wrong. Please try again."); //  Error toast
+      showToast("error", "Error", "Something went wrong. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <SafeAreaView className="flex-1 bg-gray-50">
       <StatusBar style="dark" />
-      <ScrollView
-        contentContainerStyle={{ flexGrow: 1 }}
-        keyboardShouldPersistTaps="handled"
-        showsVerticalScrollIndicator={false}
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        className="flex-1"
       >
-        <KeyboardAvoidingView
-          behavior={Platform.OS === "ios" ? "padding" : "height"}
-          className="flex-1 px-6 justify-center"
-          style={{ flexGrow: 1 }}
+        <ScrollView
+          contentContainerStyle={{ flexGrow: 1, justifyContent: "center", paddingHorizontal: 24 }}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
         >
-          <View className="items-center mb-6">
-            <Text className="text-4xl font-bold text-blue-600">Nadi Rakshak</Text>
-            <Text className="text-gray-500 mt-2 text-center">
-              Enter a new password to reset your account.
+          <View className="bg-white p-6 rounded-xl shadow-sm">
+            {/* Title */}
+            <Text className="text-2xl font-bold text-gray-800 mb-2 text-center">
+              Reset Password
             </Text>
-          </View>
+            <Text className="text-gray-600 text-sm text-center mb-6">
+              Enter your new password below.
+            </Text>
 
-          {/* Password Input */}
-          <View className="mb-4">
-            <View className="flex-row items-center border border-gray-300 rounded-lg p-3">
-              <Lock color="#6B7280" size={20} className="mr-3" />
-              <TextInput
-                className="flex-1 ml-2"
-                placeholder="New Password"
-                value={newPassword}
-                onChangeText={setNewPassword}
-                secureTextEntry
-              />
+            {/* New Password Input */}
+            <View className="mb-4">
+              <Text className="text-sm font-medium text-gray-700 mb-1">New Password</Text>
+              <View className="flex-row items-center border border-gray-300 rounded-lg p-3 bg-gray-50">
+                <Lock color="#4B5563" size={18} />
+                <TextInput
+                  className="flex-1 ml-2 text-base"
+                  placeholder="Enter new password"
+                  value={newPassword}
+                  onChangeText={setNewPassword}
+                  secureTextEntry
+                />
+              </View>
             </View>
-          </View>
 
-          {/* Confirm Password Input */}
-          <View className="mb-4">
-            <View className="flex-row items-center border border-gray-300 rounded-lg p-3">
-              <Lock color="#6B7280" size={20} className="mr-3" />
-              <TextInput
-                className="flex-1 ml-2"
-                placeholder="Confirm Password"
-                value={confirmPassword}
-                onChangeText={setConfirmPassword}
-                secureTextEntry
-              />
+            {/* Confirm Password Input */}
+            <View className="mb-4">
+              <Text className="text-sm font-medium text-gray-700 mb-1">Confirm Password</Text>
+              <View className="flex-row items-center border border-gray-300 rounded-lg p-3 bg-gray-50">
+                <Lock color="#4B5563" size={18} />
+                <TextInput
+                  className="flex-1 ml-2 text-base"
+                  placeholder="Confirm new password"
+                  value={confirmPassword}
+                  onChangeText={setConfirmPassword}
+                  secureTextEntry
+                />
+              </View>
             </View>
+
+            {/* Reset Button */}
+            <PrimaryButton
+              title={loading ? "Resetting..." : "Reset Password"}
+              onPress={handleResetPassword}
+              disabled={loading}
+              className="mb-4"
+            />
           </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
 
-          {/* Reset Button */}
-          <PrimaryButton title="Reset Password" onPress={handleResetPassword} className="mt-4" />
-
-          {/* Toast Component */}
-          <ToastComponent />
-        </KeyboardAvoidingView>
-      </ScrollView>
+      {/* Toast Component */}
+      <ToastComponent />
     </SafeAreaView>
   );
 }

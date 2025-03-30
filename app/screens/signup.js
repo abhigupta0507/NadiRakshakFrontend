@@ -5,16 +5,15 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  KeyboardAvoidingView,
-  Platform,
   ScrollView,
+  Image,
 } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { useRouter } from "expo-router";
-import { PrimaryButton } from "../components/Button";
-
-import { BackendUrl } from "../../secrets.js";
+import { Picker } from "@react-native-picker/picker"; // Import Picker
 import ToastComponent, { showToast } from "../components/Toast.js"; //  Import Toast
+import { BackendUrl } from "../../secrets.js";
+import { User, Mail, Lock, Calendar, MapPin, Phone, Briefcase } from "lucide-react-native";
 
 export default function SignupScreen() {
   const [name, setName] = useState("");
@@ -24,7 +23,7 @@ export default function SignupScreen() {
   const [city, setCity] = useState("");
   const [stateName, setStateName] = useState("");
   const [mobileNumber, setMobileNumber] = useState("");
-  const [role, setRole] = useState("user");
+  const [role, setRole] = useState("Public"); // Default role set to 'Public'
 
   const router = useRouter();
 
@@ -66,137 +65,125 @@ export default function SignupScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <SafeAreaView className="flex-1 bg-gray-50">
       <StatusBar style="dark" />
-      <ScrollView
-        contentContainerStyle={{ flexGrow: 1 }}
-        keyboardShouldPersistTaps="handled"
-        showsVerticalScrollIndicator={false}
-      >
-        <KeyboardAvoidingView
-          behavior={Platform.OS === "ios" ? "padding" : "height"}
-          className="flex-1 px-6 justify-center"
-          style={{ flexGrow: 1 }}
-        >
-          <View className="space-y-6 mt-6">
-            {/* App Logo / Title */}
-            <View className="items-center">
-              <Text className="text-4xl font-bold text-blue-600">
-                Nadi Rakshak
-              </Text>
-              <Text className="text-gray-500 mt-2 text-center">
-                River Pollution Reporting
-              </Text>
+      <ScrollView showsVerticalScrollIndicator={false}>
+        {/* Header with Image Overlay */}
+        <View className="relative">
+          <Image
+            source={{ uri: "https://img.freepik.com/free-vector/volunteers-helping-community_23-2148501943.jpg" }}
+            className="w-full h-48"
+            resizeMode="cover"
+          />
+          <View className="absolute inset-0 bg-black/40 flex justify-end">
+            <View className="p-4">
+              <Text className="text-white text-3xl font-bold">Nadi Rakshak</Text>
+              <Text className="text-white text-lg opacity-90">Join the movement for cleaner rivers</Text>
+            </View>
+          </View>
+        </View>
+
+        <View className="p-6">
+          {/* Signup Form */}
+          <View className="bg-white p-5 rounded-xl shadow-sm mb-6">
+            <Text className="text-lg font-semibold mb-4 text-gray-800">Create Your Account</Text>
+
+            {/* Name Input */}
+            <View className="mb-4">
+              <Text className="text-sm font-medium text-gray-700 mb-1">Full Name</Text>
+              <View className="flex-row items-center border border-gray-300 rounded-lg p-3 bg-gray-50">
+                <User color="#4B5563" size={18} />
+                <TextInput className="flex-1 ml-2 text-base" placeholder="Enter your name" value={name} onChangeText={setName} />
+              </View>
             </View>
 
-            {/* Signup Form */}
-            <View>
-              {/* Name Input */}
-              <View className="mb-4">
+            {/* Email Input */}
+            <View className="mb-4">
+              <Text className="text-sm font-medium text-gray-700 mb-1">Email</Text>
+              <View className="flex-row items-center border border-gray-300 rounded-lg p-3 bg-gray-50">
+                <Mail color="#4B5563" size={18} />
                 <TextInput
-                  className="border border-gray-300 p-3 rounded-lg"
-                  placeholder="Name"
-                  value={name}
-                  onChangeText={setName}
-                />
-              </View>
-
-              {/* Email Input */}
-              <View className="mb-4">
-                <TextInput
-                  className="border border-gray-300 p-3 rounded-lg"
-                  placeholder="Email Address"
+                  className="flex-1 ml-2 text-base"
+                  placeholder="Enter your email"
                   value={email}
                   onChangeText={setEmail}
                   keyboardType="email-address"
                   autoCapitalize="none"
                 />
               </View>
+            </View>
 
-              {/* Password Input */}
-              <View className="mb-4">
+            {/* Password Input */}
+            <View className="mb-4">
+              <Text className="text-sm font-medium text-gray-700 mb-1">Password</Text>
+              <View className="flex-row items-center border border-gray-300 rounded-lg p-3 bg-gray-50">
+                <Lock color="#4B5563" size={18} />
                 <TextInput
-                  className="border border-gray-300 p-3 rounded-lg"
-                  placeholder="Password"
+                  className="flex-1 ml-2 text-base"
+                  placeholder="Enter password"
                   value={password}
                   onChangeText={setPassword}
                   secureTextEntry={true}
                 />
               </View>
+            </View>
 
-              {/* Age Input */}
-              <View className="mb-4">
-                <TextInput
-                  className="border border-gray-300 p-3 rounded-lg"
-                  placeholder="Age"
-                  value={age}
-                  onChangeText={setAge}
-                  keyboardType="numeric"
-                />
-              </View>
-
-              {/* City Input */}
-              <View className="mb-4">
-                <TextInput
-                  className="border border-gray-300 p-3 rounded-lg"
-                  placeholder="City"
-                  value={city}
-                  onChangeText={setCity}
-                />
-              </View>
-
-              {/* State Input */}
-              <View className="mb-4">
-                <TextInput
-                  className="border border-gray-300 p-3 rounded-lg"
-                  placeholder="State"
-                  value={stateName}
-                  onChangeText={setStateName}
-                />
-              </View>
-
-              {/* Mobile Number Input */}
-              <View className="mb-4">
-                <TextInput
-                  className="border border-gray-300 p-3 rounded-lg"
-                  placeholder="Mobile Number"
-                  value={mobileNumber}
-                  onChangeText={setMobileNumber}
-                  keyboardType="phone-pad"
-                />
-              </View>
-
-              {/* Role Input (Optional: could be a dropdown) */}
-              <View className="mb-4">
-                <TextInput
-                  className="border border-gray-300 p-3 rounded-lg"
-                  placeholder="Role (user/admin)"
-                  value={role}
-                  onChangeText={setRole}
-                />
-              </View>
-
-              {/* Signup Button */}
-              <PrimaryButton
-                title="Sign Up"
-                onPress={handleSignup}
-                className="mb-4"
-              />
-
-              {/* Link to Login */}
-              <View className="flex-row justify-center mt-4">
-                <Text className="text-gray-700">Already have an account? </Text>
-                <TouchableOpacity onPress={() => router.replace("/screens/login")}>
-                  <Text className="text-blue-600 font-semibold">Login</Text>
-                </TouchableOpacity>
+            {/* Age Input */}
+            <View className="mb-4">
+              <Text className="text-sm font-medium text-gray-700 mb-1">Age</Text>
+              <View className="flex-row items-center border border-gray-300 rounded-lg p-3 bg-gray-50">
+                <Calendar color="#4B5563" size={18} />
+                <TextInput className="flex-1 ml-2 text-base" placeholder="Enter age" value={age} onChangeText={setAge} keyboardType="numeric" />
               </View>
             </View>
-          </View>
-        </KeyboardAvoidingView>
-      </ScrollView>
 
-      {/*  Toast Component (must be at root level) */}
-      <ToastComponent />
+            {/* City Input */}
+            <View className="mb-4">
+              <Text className="text-sm font-medium text-gray-700 mb-1">City</Text>
+              <View className="flex-row items-center border border-gray-300 rounded-lg p-3 bg-gray-50">
+                <MapPin color="#4B5563" size={18} />
+                <TextInput className="flex-1 ml-2 text-base" placeholder="Enter city" value={city} onChangeText={setCity} />
+              </View>
+            </View>
+
+            {/* State Input */}
+            <View className="mb-4">
+              <Text className="text-sm font-medium text-gray-700 mb-1">State</Text>
+              <View className="flex-row items-center border border-gray-300 rounded-lg p-3 bg-gray-50">
+                <MapPin color="#4B5563" size={18} />
+                <TextInput className="flex-1 ml-2 text-base" placeholder="Enter state" value={stateName} onChangeText={setStateName} />
+              </View>
+            </View>
+
+            {/* Mobile Number Input */}
+            <View className="mb-4">
+              <Text className="text-sm font-medium text-gray-700 mb-1">Mobile Number</Text>
+              <View className="flex-row items-center border border-gray-300 rounded-lg p-3 bg-gray-50">
+                <Phone color="#4B5563" size={18} />
+                <TextInput className="flex-1 ml-2 text-base" placeholder="Enter mobile number" value={mobileNumber} onChangeText={setMobileNumber} keyboardType="phone-pad" />
+              </View>
+            </View>
+
+            {/* Role Picker */}
+            <View className="mb-4">
+              <Text className="text-sm font-medium text-gray-700 mb-1">Role</Text>
+              <View className="border border-gray-300 rounded-lg bg-gray-50 overflow-hidden">
+                <Picker selectedValue={role} onValueChange={(value) => setRole(value)} style={{ color: "#4B5563" }}>
+                  <Picker.Item label="Public" value="Public" />
+                  <Picker.Item label="Inspection" value="Inspection" />
+                </Picker>
+              </View>
+            </View>
+
+            {/* Signup Button */}
+            <TouchableOpacity className="py-4 rounded-lg bg-blue-600" onPress={handleSignup}>
+              <Text className="text-white text-center font-bold text-lg">Sign Up</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </ScrollView>
+        {/*  Toast Component (must be at root level) */}
+        <ToastComponent />
     </SafeAreaView>
   );
 }

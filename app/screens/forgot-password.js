@@ -42,7 +42,7 @@ export default function ForgotPasswordScreen() {
         throw new Error(data.message || "Something went wrong");
       }
 
-      showToast("success", "Success", "Password reset link sent to your email"); // Show success toast
+      showToast("success", "Success", "Password reset OTP sent to your email"); // Show success toast
 
       setTimeout(() => {
         router.replace({ pathname: "/screens/verify-reset-otp", params: { email: email } });
@@ -55,34 +55,34 @@ export default function ForgotPasswordScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <SafeAreaView className="flex-1 bg-gray-50">
       <StatusBar style="dark" />
-      <ScrollView
-        contentContainerStyle={{ flexGrow: 1 }}
-        keyboardShouldPersistTaps="handled"
-        showsVerticalScrollIndicator={false}
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        className="flex-1"
       >
-        <KeyboardAvoidingView
-          behavior={Platform.OS === "ios" ? "padding" : "height"}
-          className="flex-1 px-6 justify-center"
-          style={{ flexGrow: 1 }}
+        <ScrollView
+          contentContainerStyle={{ flexGrow: 1, justifyContent: "center", paddingHorizontal: 24 }}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
         >
-          <View className="space-y-6 mt-15">
+          <View className="bg-white p-6 rounded-xl shadow-sm">
             {/* Title */}
-            <View className="items-center p-5">
-              <Text className="text-3xl font-bold text-blue-600">Reset Password</Text>
-              <Text className="text-gray-500 mt-2 text-center">
-                Enter your email to receive a reset link
-              </Text>
-            </View>
+            <Text className="text-2xl font-bold text-gray-800 mb-2 text-center">
+              Reset Password
+            </Text>
+            <Text className="text-gray-600 text-sm text-center mb-6">
+              Enter your email, and we'll send you a password reset OTP.
+            </Text>
 
             {/* Email Input */}
             <View className="mb-4">
-              <View className="flex-row items-center border border-gray-300 rounded-lg p-3">
-                <Mail color="#6B7280" size={20} className="mr-3" />
+              <Text className="text-sm font-medium text-gray-700 mb-1">Email</Text>
+              <View className="flex-row items-center border border-gray-300 rounded-lg p-3 bg-gray-50">
+                <Mail color="#4B5563" size={18} />
                 <TextInput
-                  className="flex-1 ml-2"
-                  placeholder="Email Address"
+                  className="flex-1 ml-2 text-base"
+                  placeholder="Enter your email"
                   value={email}
                   onChangeText={setEmail}
                   keyboardType="email-address"
@@ -93,7 +93,7 @@ export default function ForgotPasswordScreen() {
 
             {/* Reset Button */}
             <PrimaryButton
-              title={loading ? "Sending..." : "Send Reset Link"}
+              title={loading ? "Sending..." : "Send Reset OTP"}
               onPress={handleResetPassword}
               disabled={loading}
               className="mb-4"
@@ -109,10 +109,10 @@ export default function ForgotPasswordScreen() {
               </Link>
             </View>
           </View>
-        </KeyboardAvoidingView>
-      </ScrollView>
+        </ScrollView>
+      </KeyboardAvoidingView>
 
-      {/* Toast Component (must be at root level) */}
+      {/* Toast Component */}
       <ToastComponent />
     </SafeAreaView>
   );

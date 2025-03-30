@@ -30,10 +30,10 @@ export default function CreateCampaign() {
       return;
     }
 
-    if (endDate <= startDate) {
-      showToast("error", "Invalid Dates", "End date must be after start date.");
-      return;
-    }
+    // if (endDate <= startDate) {
+    //   showToast("error", "Invalid Dates", "End date must be after start date.");
+    //   return;
+    // }
 
     setLoading(true);
 
@@ -53,7 +53,7 @@ export default function CreateCampaign() {
       formData.append("endDate", endDate.toISOString());
       formData.append("maxParticipants", maxParticipants);
       formData.append("category", category);
-
+      // console.log(endDate.toISOString());
       const imageName = image.split("/").pop();
       const imageType = imageName.split(".").pop();
       formData.append("image", {
