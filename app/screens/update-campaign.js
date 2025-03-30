@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { View, Text, TextInput, TouchableOpacity, Image, ScrollView, ActivityIndicator, Alert } from "react-native";import { useRouter, useGlobalSearchParams } from "expo-router";
+import { View, Text, TextInput, TouchableOpacity, Image, ScrollView, ActivityIndicator, Alert } from "react-native";
+import { useRouter, useGlobalSearchParams } from "expo-router";
 import ToastComponent, { showToast } from "../components/Toast.js";
 import * as ImagePicker from "expo-image-picker";
 import * as SecureStore from "expo-secure-store";
@@ -14,6 +15,7 @@ export default function UpdateCampaign() {
   const params = useGlobalSearchParams();
   const { campaignId } = params;
 
+
   // Form state
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -24,6 +26,7 @@ export default function UpdateCampaign() {
   const [image, setImage] = useState(null);
   const [imageChanged, setImageChanged] = useState(false);
   const [category, setCategory] = useState("Environment");
+  const [isActive, setIsActive] = useState(false);
   
   // Original data to compare changes
   const [originalData, setOriginalData] = useState(null);
@@ -70,6 +73,7 @@ export default function UpdateCampaign() {
           setMaxParticipants(campaign.maxParticipants.toString());
           setImage(campaign.image);
           setCategory(campaign.category);
+          setIsActive(campaign.status === 'active');
           
           // Store original data for comparison
           setOriginalData({
@@ -96,55 +100,6 @@ export default function UpdateCampaign() {
     
     getAuthTokenAndCampaignData();
   }, [campaignId]);
-
-  // Add this function to handle campaign deletion
-  const handleDeleteCampaign = () => {
-    Alert.alert(
-      "Delete Campaign",
-      "Are you sure you want to delete this campaign? This action cannot be undone.",
-      [
-        {
-          text: "Cancel",
-          style: "cancel"
-        },
-        {
-          text: "Delete",
-          style: "destructive",
-          onPress: confirmDeleteCampaign
-        }
-      ]
-    );
-  };
-
-  // Function to perform the actual deletion after confirmation
-  const confirmDeleteCampaign = async () => {
-    setLoading(true); // Use the existing loading state
-    try {
-      const response = await fetch(`${BackendUrl}/campaigns/${campaignId}`, {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${authToken}`,
-        },
-      });
-      
-      const result = await response.json();
-      
-      if (response.ok) {
-        showToast("success", "Deleted Successfully", "Campaign has been deleted");
-        // Navigate back to campaigns list
-        router.push("../campaigns");
-      } else {
-        showToast("error", "Error", result.message || "Failed to delete campaign");
-      }
-    } catch (error) {
-      console.error("Delete Campaign Error:", error);
-      showToast("error", "Error", "Failed to delete campaign");
-    } finally {
-      setLoading(false); // Set loading back to false when done
-    }
-
-  };
 
   const handleUpdateCampaign = async () => {
     if (!title || !description || !location || !maxParticipants || !image) {
@@ -463,14 +418,6 @@ export default function UpdateCampaign() {
             ) : (
               <Text className="text-white text-center font-bold text-lg">Update Campaign</Text>
             )}
-          </TouchableOpacity>
-          
-          {/* Delete Button */}
-          <TouchableOpacity 
-            className="py-4 rounded-lg bg-red-500 mb-6"
-            onPress={handleDeleteCampaign} // Remove the () => 
-          >
-            <Text className="text-white text-center font-bold">Delete</Text>
           </TouchableOpacity>
 
           {/* Cancel Button */}

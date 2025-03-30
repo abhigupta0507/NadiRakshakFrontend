@@ -27,6 +27,7 @@ const CampaignDetails = ({ route }) => {
   const [isCreator, setIsCreator] = useState(false);
   const [totalParticipantWithoutUser, settotalParticipantWithoutUser] = useState(0);
   const [joinLeaveLoading, setJoinLeaveLoading] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
   const [authToken, setAuthToken] = useState(null);
 
   // Get auth token on component mount
@@ -50,7 +51,7 @@ const CampaignDetails = ({ route }) => {
     getAuthToken();
   }, []);
 
-// Add a state to track screen focus
+  // Add a state to track screen focus
   const [isFocused, setIsFocused] = useState(false);
 
   // Update useFocusEffect implementation
@@ -185,6 +186,82 @@ const CampaignDetails = ({ route }) => {
     });
   };
 
+  // Add the delete campaign functionality
+  const handleDeleteCampaign = () => {
+    // Check if campaign is active before showing the delete confirmation
+    if (campaign.status === 'active') {
+      showToast("error", "Cannot Delete", "Active campaigns cannot be deleted. Please deactivate the campaign first.");
+      return;
+    }
+    
+    Alert.alert(
+      "Delete Campaign",
+      "Are you sure you want to delete this campaign? This action cannot be undone.",
+      [
+        {
+          text: "Cancel",
+          style: "cancel"
+        },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: confirmDeleteCampaign
+        }
+      ]
+    );
+  };
+
+  const confirmDeleteCampaign = async () => {
+    setDeleteLoading(true);
+    try {
+      const response = await fetch(`${BackendUrl}/campaigns/${campaignId}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
+        },
+      });
+      
+      if (response.status === 204) {
+        // Handle 204 No Content response
+        showToast("success", "Deleted Successfully", "Campaign has been deleted");
+        router.replace("/campaign");
+        return;
+      }
+      
+      // For other responses, try to parse the JSON (if any)
+      let result;
+      try {
+        // Only try to parse JSON if there's content to parse
+        if (response.headers.get("content-length") !== "0") {
+          result = await response.json();
+        }
+      } catch (parseError) {
+        console.error("Error parsing response:", parseError);
+        // Continue with the response handling even if JSON parsing fails
+      }
+      
+      if (response.ok) {
+        showToast("success", "Deleted Successfully", "Campaign has been deleted");
+        router.push("/campaign");
+      } else {
+        // Check if we have a result with message
+        const errorMessage = result?.message || "Failed to delete campaign";
+        
+        if (errorMessage.toLowerCase().includes("upcoming")) {
+          showToast("error", "Cannot Delete", "Only upcoming campaigns can be deleted.");
+        } else {
+          showToast("error", "Error", errorMessage);
+        }
+      }
+    } catch (error) {
+      console.error("Delete Campaign Error:", error);
+      showToast("error", "Error", "Failed to connect to server");
+    } finally {
+      setDeleteLoading(false);
+    }
+  };
+
   const formatDate = (dateString) => {
     const options = { day: 'numeric', month: 'short', year: 'numeric' };
     return new Date(dateString).toLocaleDateString(undefined, options);
@@ -198,7 +275,7 @@ const CampaignDetails = ({ route }) => {
       </View>
     );
   }
-
+  
   return (
     <SafeAreaView className="flex-1 bg-white">
       <StatusBar barStyle="dark-content" />
@@ -228,7 +305,7 @@ const CampaignDetails = ({ route }) => {
             </View>
           </View>
         </View>
-
+  
         {/* Campaign info cards */}
         <View className="px-5 py-6">
           {/* Date and Location card */}
@@ -260,11 +337,11 @@ const CampaignDetails = ({ route }) => {
               </View>
             </View>
           </View>
-
+  
           {/* About section */}
           <Text className="text-lg font-semibold text-gray-800 mb-2">About</Text>
           <Text className="text-gray-600 leading-6">{campaign.description}</Text>
-
+  
           {/* Campaign details section */}
           <View className="mt-8 mb-4">
             <Text className="text-lg font-semibold text-gray-800 mb-3">Campaign Details</Text>
@@ -291,6 +368,22 @@ const CampaignDetails = ({ route }) => {
                 <Text className="text-gray-600">Max Participants</Text>
                 <Text className="text-gray-800 font-medium">{campaign.maxParticipants}</Text>
               </View>
+              <View className="h-0.5 bg-gray-100 my-2" />
+              
+              <View className="flex-row justify-between items-center py-2">
+                <Text className="text-gray-600">Status</Text>
+                <View className={`px-2 py-1 rounded-full ${
+                  campaign.status === 'active' ? 'bg-green-100' : 
+                  campaign.status === 'upcoming' ? 'bg-blue-100' : 'bg-gray-100'
+                }`}>
+                  <Text className={`text-xs font-medium ${
+                    campaign.status === 'active' ? 'text-green-700' : 
+                    campaign.status === 'upcoming' ? 'text-blue-700' : 'text-gray-700'
+                  }`}>
+                    {campaign.status?.charAt(0).toUpperCase() + campaign.status?.slice(1) || "Unknown"}
+                  </Text>
+                </View>
+              </View>
             </View>
           </View>
           
@@ -305,17 +398,56 @@ const CampaignDetails = ({ route }) => {
           </View>
         </View>
       </ScrollView>
-
+  
       {/* Fixed bottom button or buttons */}
       <View className="absolute bottom-0 left-0 right-0 bg-white px-5 py-4 border-t border-gray-100 shadow-lg">
         {isCreator ? (
-          // Show both buttons for creator
-          <View className="flex-row space-x-2">
-            {/* Join/Leave Button */}
+          // Creator options
+          <View className="space-y-2">
+            {/* First row - Update & Delete */}
+            <View className="flex-row space-x-2">
+              {/* Update Button */}
+              <TouchableOpacity
+                onPress={handleUpdateCampaign}
+                className="flex-1 py-3.5 rounded-xl bg-green-600"
+              >
+                <Text className="text-center text-white text-base font-bold">
+                  Update Campaign
+                </Text>
+              </TouchableOpacity>
+              
+              {/* Delete Button */}
+              <TouchableOpacity
+                onPress={handleDeleteCampaign}
+                disabled={deleteLoading || campaign.status === 'active'}
+                className={`flex-1 py-3.5 rounded-xl ${
+                  deleteLoading 
+                    ? "bg-gray-400" 
+                    : campaign.status === 'active'
+                      ? "bg-gray-300"
+                      : "bg-red-600"
+                }`}
+              >
+                {deleteLoading ? (
+                  <View className="flex-row justify-center items-center">
+                    <ActivityIndicator size="small" color="white" />
+                    <Text className="text-white text-base font-bold ml-2">
+                      Deleting...
+                    </Text>
+                  </View>
+                ) : (
+                  <Text className="text-center text-white text-base font-bold">
+                    Delete Campaign
+                  </Text>
+                )}
+              </TouchableOpacity>
+            </View>
+            
+            {/* Second row - Join/Leave */}
             <TouchableOpacity
               onPress={isParticipant ? handleLeave : handleJoin}
               disabled={joinLeaveLoading}
-              className={`flex-1 py-3.5 rounded-xl ${
+              className={`py-3.5 rounded-xl ${
                 joinLeaveLoading 
                   ? "bg-gray-400" 
                   : isParticipant 
@@ -336,19 +468,9 @@ const CampaignDetails = ({ route }) => {
                 </Text>
               )}
             </TouchableOpacity>
-            
-            {/* Update Button */}
-            <TouchableOpacity
-              onPress={handleUpdateCampaign}
-              className="flex-1 py-3.5 rounded-xl bg-green-600"
-            >
-              <Text className="text-center text-white text-base font-bold">
-                Update Campaign
-              </Text>
-            </TouchableOpacity>
           </View>
         ) : (
-          // Show only Join/Leave button for non-creators
+          // Non-creator - single Join/Leave button
           <TouchableOpacity
             onPress={isParticipant ? handleLeave : handleJoin}
             disabled={joinLeaveLoading}
