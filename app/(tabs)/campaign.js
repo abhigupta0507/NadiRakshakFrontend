@@ -74,7 +74,7 @@ export default function CampaignsScreen() {
     <View className="flex-1 bg-gray-100">
       {/* Header with Plus Button */}
       <View className="relative">
-        <Header />
+        <Header title={"Community Campaign"} subtitle={"Join a course and make a difference"} />
         <TouchableOpacity
           onPress={() => router.push("/screens/CreateCampaign")}
           style={{
