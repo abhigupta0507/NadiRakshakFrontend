@@ -10,7 +10,7 @@ import { BackendUrl } from "../../secrets";
 
 export default function ReportsScreen() {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState("reports"); // "reports" or "drafts"
+  const [activeTab, setActiveTab] = useState("drafts"); // "reports" or "drafts"
   const [reports, setReports] = useState([]);
   const [drafts, setDrafts] = useState([]);
   const [loading, setLoading] = useState(true);

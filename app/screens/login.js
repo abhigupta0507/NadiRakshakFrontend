@@ -45,8 +45,8 @@ export default function LoginScreen() {
       await SecureStore.setItemAsync("refreshToken", data.refreshToken);
 
       showToast("success", "Login Successful", "Redirecting to home...");
-
-      setTimeout(() => router.replace("/home"), 1500); // Delay for toast visibility
+      console.log("hello");
+      setTimeout(() => router.replace("/index"), 1500); // Delay for toast visibility
     } catch (error) {
       console.error("Login error:", error.message);
       showToast("error", "Login Failed", error.message);
