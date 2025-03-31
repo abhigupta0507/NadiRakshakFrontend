@@ -182,7 +182,7 @@ export default function CreateCampaign() {
                 <TextInput 
                   className="flex-1 ml-2 text-base"
                   placeholder="Number of participants" 
-                  keyboardType="numeric" 
+                  keyboardType="number-pad" 
                   value={maxParticipants} 
                   onChangeText={setMaxParticipants} 
                 />
