@@ -83,6 +83,10 @@ export default function EditDraftScreen() {
         return;
       }
 
+      if(description === ""){
+        throw "Description can't be empty";
+      }
+
       const response = await fetch(`${BackendUrl}/reports/drafts/${draftId}`, {
         method: "PATCH",
         headers: {
@@ -90,7 +94,7 @@ export default function EditDraftScreen() {
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
-          description,
+          description, 
           severity
         }),
       });
