@@ -195,7 +195,7 @@ if (isAuthenticated === null || isAuthenticated === false) {
         {/* Buttons Section */}
         <View className="flex-row justify-between mt-4">
           <TouchableOpacity
-            onPress={() => router.push("/redeem")}
+            onPress={() => router.push("../screens/redeem-points")}
             className="bg-green-600 p-3 rounded-xl w-5/12 items-center shadow-md"
           >
             <Text className="text-white font-bold">Redeem Points</Text>
