@@ -7,13 +7,13 @@ import {
   TextInput,
   ScrollView,
   ActivityIndicator,
-  Alert,
   Pressable,
 } from "react-native";
 import { useRouter } from "expo-router";
 import * as SecureStore from "expo-secure-store";
 import { BackendUrl } from "../../secrets";
 import { MaterialIcons } from "@expo/vector-icons";
+import ToastComponent, { showToast } from "../components/Toast.js";
 
 export default function ProfileScreen() {
   const router = useRouter();
@@ -21,22 +21,27 @@ export default function ProfileScreen() {
   const [loading, setLoading] = useState(true);
   const [modalVisible, setModalVisible] = useState(false);
   const [formData, setFormData] = useState({});
+  const [isAuthenticated, setIsAuthenticated] = useState(null); // New state to track auth status
 
   useEffect(() => {
-    fetchUserProfile();
+    const checkAuthentication = async () => {
+      const token = await SecureStore.getItemAsync("accessToken");
+      if (!token) {
+        setIsAuthenticated(false);
+        router.replace("/screens/login"); // Redirect if no token
+      } else {
+        setIsAuthenticated(true);
+        fetchUserProfile(token);
+      }
+    };
+  
+    checkAuthentication();
   }, []);
+  
 
-  const fetchUserProfile = async () => {
+  const fetchUserProfile = async (token) => {
     try {
       setLoading(true);
-      const token = await SecureStore.getItemAsync("accessToken");
-
-      if (!token) {
-        Alert.alert("Unauthorized", "Please log in again.");
-        router.push("/login");
-        return;
-      }
-
       const response = await fetch(`${BackendUrl}/auth/profile`, {
         method: "GET",
         headers: {
@@ -44,18 +49,18 @@ export default function ProfileScreen() {
           Authorization: `Bearer ${token}`,
         },
       });
-
       const result = await response.json();
-
       if (response.ok && result.status === "success") {
         setUser(result.data.profile);
         setFormData(result.data.profile);
       } else {
-        Alert.alert("Error", result.message || "Failed to fetch profile.");
+        showToast("error", "Error", result.message || "Failed to fetch profile.");
+        setUser(null);
       }
     } catch (error) {
-      Alert.alert("Error", "Something went wrong. Please try again.");
+      showToast("error", "Error", "Something went wrong. Please try again.");
       console.error("Fetch Profile Error:", error);
+      setUser(null);
     } finally {
       setLoading(false);
     }
@@ -65,35 +70,57 @@ export default function ProfileScreen() {
     try {
       const token = await SecureStore.getItemAsync("accessToken");
       if (!token) {
-        Alert.alert("Unauthorized", "Please log in again.");
-        router.push("/login");
+        showToast("error", "Unauthorized", "Please log in again.");
+        router.replace("/screens/login");
         return;
       }
-
-      const response = await fetch(`${BackendUrl}/user/profile`, {
+      const payload = {
+        name: formData.name,
+        mobileNumber: formData.mobileNumber,
+        age: formData.age,
+        city: formData.city,
+        state: formData.state,
+      };
+      const response = await fetch(`${BackendUrl}/auth/profile`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(payload),
       });
-
       const result = await response.json();
-
       if (response.ok) {
-        Alert.alert("Success", "Profile updated successfully.");
-        setUser(formData);
+        showToast("success", "Success", "Profile updated successfully.");
+        setUser((prev) => ({ ...prev, ...payload }));
         setModalVisible(false);
       } else {
-        Alert.alert("Error", result.message || "Failed to update profile.");
+        showToast("error", "Error", result.message || "Failed to update profile.");
       }
     } catch (error) {
-      Alert.alert("Error", "Something went wrong. Please try again.");
+      showToast("error", "Error", "Something went wrong. Please try again.");
       console.error("Update Profile Error:", error);
     }
   };
 
+  const handleLogout = async () => {
+    await SecureStore.deleteItemAsync("accessToken");
+    await SecureStore.deleteItemAsync("refreshToken");
+    router.replace("/screens/login");
+  };
+
+  // Prevent rendering profile screen if authentication is not determined
+if (isAuthenticated === null || isAuthenticated === false) {
+  return null; // Don't render anything while checking auth or if unauthorized
+}
+
+
+  // If not authenticated, don't render anything (redirection should already be in progress)
+  if (!isAuthenticated) {
+    return null;
+  }
+
+  // If still loading profile data
   if (loading) {
     return (
       <View className="flex-1 justify-center items-center bg-gray-100">
@@ -103,6 +130,7 @@ export default function ProfileScreen() {
     );
   }
 
+  // If user data failed to load
   if (!user) {
     return (
       <View className="flex-1 justify-center items-center bg-gray-100">
@@ -112,83 +140,160 @@ export default function ProfileScreen() {
   }
 
   return (
-    <ScrollView className="flex-1 bg-gray-100 px-4 py-6">
-      {/* Profile Card */}
-      <View className="bg-white p-6 rounded-xl shadow-md relative items-center">
-        <MaterialIcons name="account-circle" size={80} color="#3b82f6" />
-        <Text className="text-2xl font-bold mt-2 text-gray-800">{user.name}</Text>
-        <Text className="text-gray-500">{user.email}</Text>
-        {/* Edit Icon */}
-        <TouchableOpacity
-          onPress={() => setModalVisible(true)}
-          className="absolute top-4 right-4"
-        >
-          <MaterialIcons name="edit" size={22} color="#3b82f6" />
-        </TouchableOpacity>
-      </View>
-
-      {/* Details Section */}
-      <View className="bg-white mt-4 p-6 rounded-xl shadow-md">
-        <ProfileDetail label="Mobile Number" value={user.mobileNumber} />
-        <ProfileDetail label="Age" value={user.age} />
-        <ProfileDetail label="City" value={user.city} />
-        <ProfileDetail label="State" value={user.state} />
-        <ProfileDetail label="Member Since" value={new Date(user.memberSince).toLocaleDateString()} />
-      </View>
-
-      {/* Statistics Section */}
-      <View className="bg-white mt-4 p-6 rounded-xl shadow-md">
-        <Text className="text-xl font-bold mb-2 text-gray-800">Statistics</Text>
-        <View className="flex-row justify-between">
-          <StatCard label="Created" value={user.stats.totalCampaignsCreated} />
-          <StatCard label="Joined" value={user.stats.totalCampaignsJoined} />
-          <StatCard label="Participants" value={user.stats.totalParticipantsManaged} />
+    <View className="flex-1 bg-gray-100">
+      <ScrollView className="px-4 py-6">
+        {/* Profile Card */}
+        <View className="bg-white p-6 rounded-xl shadow-md relative items-center">
+          <MaterialIcons name="account-circle" size={80} color="#3b82f6" />
+          <Text className="text-2xl font-bold mt-2 text-gray-800">{user.name}</Text>
+          <Text className="text-gray-500">{user.email}</Text>
+          <TouchableOpacity
+            onPress={() => {
+              setFormData(user);
+              setModalVisible(true);
+            }}
+            className="absolute top-4 right-4"
+          >
+            <MaterialIcons name="edit" size={22} color="#3b82f6" />
+          </TouchableOpacity>
         </View>
-      </View>
-
-      {/* Edit Modal */}
-      <Modal
-        visible={modalVisible}
-        transparent
-        animationType="fade"
-        onRequestClose={() => setModalVisible(false)}
-      >
-        <Pressable
-          className="flex-1 justify-center items-center bg-black bg-opacity-50"
-          onPress={() => setModalVisible(false)}
-        >
-          <View className="bg-white p-6 rounded-xl w-11/12" onStartShouldSetResponder={() => true}>
-            <Text className="text-xl font-bold mb-4 text-center">Edit Profile</Text>
-            {["name", "mobileNumber", "age", "city", "state"].map((field) => (
-              <View key={field} className="mb-4">
-                <Text className="text-gray-600 capitalize">{field}</Text>
-                <TextInput
-                  className="border border-gray-300 p-3 rounded-md"
-                  value={formData[field]?.toString()}
-                  onChangeText={(text) =>
-                    setFormData({ ...formData, [field]: text })
-                  }
-                />
-              </View>
-            ))}
-            <View className="flex-row justify-between mt-4">
-              <TouchableOpacity
-                onPress={() => setModalVisible(false)}
-                className="bg-gray-300 p-2 rounded-lg w-5/12 items-center"
-              >
-                <Text>Cancel</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={updateProfile}
-                className="bg-blue-600 p-2 rounded-lg w-5/12 items-center"
-              >
-                <Text className="text-white">Save</Text>
-              </TouchableOpacity>
+        {/* Details Section */}
+        <View className="bg-white mt-4 p-6 rounded-xl shadow-md">
+          <ProfileDetail label="Mobile Number" value={user.mobileNumber} />
+          <ProfileDetail label="Age" value={user.age} />
+          <ProfileDetail label="City" value={user.city} />
+          <ProfileDetail label="State" value={user.state} />
+          <ProfileDetail
+            label="Member Since"
+            value={new Date(user.memberSince).toLocaleDateString()}
+          />
+        </View>
+        {/* Statistics Section */}
+        <View className="bg-white mt-4 p-6 rounded-xl shadow-md">
+          <Text className="text-xl font-bold mb-4 text-gray-800">Statistics</Text>
+          <View className="flex-row justify-between">
+            <View className="flex-1 items-center mx-1">
+              <Text className="text-2xl font-bold text-blue-600 mb-1">
+                {user.stats?.totalCampaignsCreated || 0}
+              </Text>
+              <Text className="text-sm text-gray-600 text-center">Campaigns Created</Text>
+            </View>
+            <View className="flex-1 items-center mx-1">
+              <Text className="text-2xl font-bold text-blue-600 mb-1">
+                {user.stats?.totalCampaignsJoined || 0}
+              </Text>
+              <Text className="text-sm text-gray-600 text-center">Campaigns Joined</Text>
+            </View>
+            <View className="flex-1 items-center mx-1">
+              <Text className="text-2xl font-bold text-blue-600 mb-1">
+                {user.stats?.totalParticipantsManaged || 0}
+              </Text>
+              <Text className="text-sm text-gray-600 text-center">Participants Managed</Text>
             </View>
           </View>
-        </Pressable>
-      </Modal>
-    </ScrollView>
+        </View>
+        {/* Buttons Section */}
+        <View className="flex-row justify-between mt-4">
+          <TouchableOpacity
+            onPress={() => router.push("/redeem")}
+            className="bg-green-600 p-3 rounded-xl w-5/12 items-center shadow-md"
+          >
+            <Text className="text-white font-bold">Redeem Points</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={handleLogout}
+            className="bg-red-600 p-3 rounded-xl w-5/12 items-center shadow-md"
+          >
+            <Text className="text-white font-bold">Logout</Text>
+          </TouchableOpacity>
+        </View>
+        {/* Edit Modal */}
+        <Modal
+          visible={modalVisible}
+          transparent
+          animationType="fade"
+          onRequestClose={() => {
+            setFormData(user);
+            setModalVisible(false);
+          }}
+        >
+          <Pressable
+            className="flex-1 justify-center items-center bg-black bg-opacity-50"
+            onPress={() => {
+              setFormData(user);
+              setModalVisible(false);
+            }}
+          >
+            <View
+              className="bg-white p-6 rounded-xl w-11/12"
+              onStartShouldSetResponder={() => true}
+            >
+              <Text className="text-xl font-bold mb-4 text-center">Edit Profile</Text>
+              <View className="mb-4">
+                <Text className="text-gray-600">Name</Text>
+                <TextInput
+                  className="border border-gray-300 p-3 rounded-md mt-1"
+                  value={formData.name?.toString()}
+                  onChangeText={(text) => setFormData({ ...formData, name: text })}
+                />
+              </View>
+              <View className="mb-4">
+                <Text className="text-gray-600">Mobile Number</Text>
+                <TextInput
+                  className="border border-gray-300 p-3 rounded-md mt-1"
+                  value={formData.mobileNumber?.toString()}
+                  onChangeText={(text) => setFormData({ ...formData, mobileNumber: text })}
+                  keyboardType="phone-pad"
+                />
+              </View>
+              <View className="mb-4">
+                <Text className="text-gray-600">Age</Text>
+                <TextInput
+                  className="border border-gray-300 p-3 rounded-md mt-1"
+                  value={formData.age?.toString()}
+                  onChangeText={(text) => setFormData({ ...formData, age: text })}
+                  keyboardType="number-pad"
+                />
+              </View>
+              <View className="mb-4">
+                <Text className="text-gray-600">City</Text>
+                <TextInput
+                  className="border border-gray-300 p-3 rounded-md mt-1"
+                  value={formData.city?.toString()}
+                  onChangeText={(text) => setFormData({ ...formData, city: text })}
+                />
+              </View>
+              <View className="mb-6">
+                <Text className="text-gray-600">State</Text>
+                <TextInput
+                  className="border border-gray-300 p-3 rounded-md mt-1"
+                  value={formData.state?.toString()}
+                  onChangeText={(text) => setFormData({ ...formData, state: text })}
+                />
+              </View>
+              <View className="flex-row justify-between mt-2">
+                <TouchableOpacity
+                  onPress={() => {
+                    setFormData(user);
+                    setModalVisible(false);
+                  }}
+                  className="bg-gray-300 py-3 rounded-lg w-[48%] items-center"
+                >
+                  <Text className="font-medium">Cancel</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={updateProfile}
+                  className="bg-blue-600 py-3 rounded-lg w-[48%] items-center"
+                >
+                  <Text className="text-white font-medium">Save Changes</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </Pressable>
+        </Modal>
+      </ScrollView>
+      <ToastComponent />
+    </View>
   );
 }
 
@@ -196,12 +301,5 @@ const ProfileDetail = ({ label, value }) => (
   <View className="flex-row justify-between items-center py-3 border-b border-gray-200">
     <Text className="text-gray-600">{label}</Text>
     <Text className="text-gray-800 font-medium">{value}</Text>
-  </View>
-);
-
-const StatCard = ({ label, value }) => (
-  <View className="flex-1 bg-gray-100 p-4 rounded-lg shadow-sm items-center mx-1">
-    <Text className="text-lg font-bold text-blue-600">{value}</Text>
-    <Text className="text-gray-600">{label}</Text>
   </View>
 );
