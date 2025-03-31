@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import {
   View,
   Text,
@@ -16,78 +16,115 @@ import { BackendUrl } from "../../secrets";
 import ToastComponent, { showToast } from "../components/Toast";
 
 export default function CameraScreen() {
+  // State management
   const [cameraDirection, setCameraDirection] = useState("back");
   const [photoUri, setPhotoUri] = useState(null);
-  const [photoLocation, setPhotoLocation] = useState(null); // New state for location
-  const [isCameraReady, setIsCameraReady] = useState(false);
+  const [photoLocation, setPhotoLocation] = useState(null);
   const [isCapturing, setIsCapturing] = useState(false);
-  const [isSending, setIsSending] = useState(false); // Loading state for sending report
+  const [isSending, setIsSending] = useState(false);
+  const [cameraStatus, setCameraStatus] = useState("loading"); // 'loading', 'ready', 'error'
 
+  // Refs and hooks
   const cameraRef = useRef(null);
+  const readyTimeoutRef = useRef(null);
   const router = useRouter();
-  const [permission, requestPermission] = useCameraPermissions();
+  const [cameraPermission, requestCameraPermission] = useCameraPermissions();
+  const [locationPermission, setLocationPermission] = useState(null);
 
+  // Permission handling
   useEffect(() => {
     (async () => {
-      if (!permission || permission.status !== "granted") {
-        await requestPermission();
+      try {
+        if (!cameraPermission || cameraPermission.status !== "granted") {
+          await requestCameraPermission();
+        }
+        const { status } = await Location.requestForegroundPermissionsAsync();
+        setLocationPermission({ status });
+      } catch (error) {
+        console.error("Permission error:", error);
+        setCameraStatus("error");
       }
     })();
+
+    return () => {
+      if (readyTimeoutRef.current) {
+        clearTimeout(readyTimeoutRef.current);
+      }
+    };
   }, []);
 
-  // Clear photoUri and photoLocation whenever the screen gains focus
+  // Reset on focus
   useFocusEffect(
-    React.useCallback(() => {
+    useCallback(() => {
       setPhotoUri(null);
       setPhotoLocation(null);
+      return () => {
+        if (readyTimeoutRef.current) {
+          clearTimeout(readyTimeoutRef.current);
+        }
+      };
     }, [])
   );
 
-  if (!permission) {
-    return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#007AFF" />
-      </View>
-    );
-  }
+  // Camera ready handler
+  const handleCameraReady = useCallback(() => {
+    readyTimeoutRef.current = setTimeout(() => {
+      setCameraStatus("ready");
+    }, 50); // Small delay to ensure stability
+  }, []);
 
-  if (permission.status !== "granted") {
-    return (
-      <View style={styles.errorContainer}>
-        <Ionicons name="alert-circle-outline" size={60} color="#FF3B30" />
-        <Text style={styles.errorText}>Camera access is required</Text>
-        <TouchableOpacity onPress={requestPermission} style={styles.permissionButton}>
-          <Text style={styles.buttonText}>Grant Permission</Text>
-        </TouchableOpacity>
-      </View>
-    );
-  }
-
+  // Take picture function
   const takePicture = async () => {
-    if (cameraRef.current && isCameraReady && !isCapturing) {
-      try {
-        setIsCapturing(true);
-        const photo = await cameraRef.current.takePictureAsync();
-        setPhotoUri(photo.uri);
-        // Fetch and store location when the picture is taken
-        const location = await Location.getCurrentPositionAsync({});
-        setPhotoLocation(location);
-        showToast("success", "Photo Captured", "Your photo has been taken successfully!");
-      } catch (error) {
-        showToast("error", "Capture Failed", "Failed to take picture.");
-      } finally {
-        setIsCapturing(false);
+    if (cameraStatus !== "ready" || isCapturing || !cameraRef.current) return;
+
+    try {
+      setIsCapturing(true);
+      const photo = await cameraRef.current.takePictureAsync({
+        quality: 0.8,
+        skipProcessing: true, // Faster capture
+      });
+      setPhotoUri(photo.uri);
+
+      const servicesEnabled = await Location.hasServicesEnabledAsync();
+      if (!servicesEnabled) {
+        throw new Error("Location services are disabled.");
       }
+
+      const location = await Location.getCurrentPositionAsync({
+        accuracy: Location.Accuracy.Balanced,
+      });
+      setPhotoLocation(location);
+      showToast("success", "Photo Captured", "Your photo has been taken successfully!");
+    } catch (error) {
+      console.error("Capture Error:", error);
+      showToast(
+        "error",
+        "Capture Failed",
+        error.message.includes("location")
+          ? "Failed to get location. Ensure location services are enabled."
+          : "Failed to take picture."
+      );
+    } finally {
+      setIsCapturing(false);
     }
   };
 
-  const sendReport = async () => {
-    if (!photoUri) {
-      showToast("error", "Error", "No photo captured");
-      return;
+  // Handle retake
+  const handleRetake = useCallback(() => {
+    setPhotoUri(null);
+    setPhotoLocation(null);
+    setCameraStatus("loading");
+    if (cameraRef.current) {
+      readyTimeoutRef.current = setTimeout(() => {
+        setCameraStatus("ready");
+      }, 100);
     }
-    if (!photoLocation) {
-      showToast("error", "Error", "Location not captured");
+  }, []);
+
+  // Send report function
+  const sendReport = async () => {
+    if (!photoUri || !photoLocation) {
+      showToast("error", "Error", !photoUri ? "No photo captured" : "Location not captured");
       return;
     }
 
@@ -111,7 +148,6 @@ export default function CameraScreen() {
       const response = await fetch(`${BackendUrl}/reports/drafts`, {
         method: "POST",
         headers: {
-          "Content-Type": "multipart/form-data",
           Authorization: `Bearer ${token}`,
         },
         body: formData,
@@ -119,17 +155,55 @@ export default function CameraScreen() {
 
       if (response.ok) {
         showToast("success", "Success", "Report sent successfully!");
-        router.push("/home");
+        router.push("/report");
       } else {
         const data = await response.json();
         showToast("error", "Error", data.message || "Failed to send report.");
       }
     } catch (error) {
+      console.error("Send Report Error:", error);
       showToast("error", "Error", "Something went wrong. Please try again.");
     } finally {
       setIsSending(false);
     }
   };
+
+  // Permission checks
+  if (!cameraPermission || !locationPermission) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#007AFF" />
+        <Text style={styles.loadingText}>Checking permissions...</Text>
+      </View>
+    );
+  }
+
+  if (cameraPermission.status !== "granted" || locationPermission.status !== "granted") {
+    return (
+      <View style={styles.errorContainer}>
+        <Ionicons name="alert-circle-outline" size={60} color="#FF3B30" />
+        <Text style={styles.errorText}>
+          {cameraPermission.status !== "granted" && locationPermission.status !== "granted"
+            ? "Camera and location access are required"
+            : cameraPermission.status !== "granted"
+            ? "Camera access is required"
+            : "Location access is required"}
+        </Text>
+        <TouchableOpacity
+          onPress={async () => {
+            if (cameraPermission.status !== "granted") await requestCameraPermission();
+            if (locationPermission.status !== "granted") {
+              const { status } = await Location.requestForegroundPermissionsAsync();
+              setLocationPermission({ status });
+            }
+          }}
+          style={styles.permissionButton}
+        >
+          <Text style={styles.buttonText}>Grant Permissions</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
@@ -137,7 +211,7 @@ export default function CameraScreen() {
         <View style={styles.previewContainer}>
           <Image source={{ uri: photoUri }} style={styles.previewImage} />
           <View style={styles.previewButtons}>
-            <TouchableOpacity style={styles.iconButton} onPress={() => { setPhotoUri(null); setPhotoLocation(null); }}>
+            <TouchableOpacity style={styles.iconButton} onPress={handleRetake}>
               <Ionicons name="camera-reverse-outline" size={30} color="#fff" />
               <Text style={styles.iconText}>Retake</Text>
             </TouchableOpacity>
@@ -148,31 +222,55 @@ export default function CameraScreen() {
           </View>
         </View>
       ) : (
-        <CameraView
-          ref={cameraRef}
-          style={styles.camera}
-          facing={cameraDirection}
-          autoFocus="on"
-          resizeMode="cover"
-          onCameraReady={() => setIsCameraReady(true)}
-        >
-          <TouchableOpacity
-            style={styles.captureButton}
-            onPress={takePicture}
-            disabled={!isCameraReady || isCapturing}
+        <View style={styles.cameraContainer}>
+          <CameraView
+            ref={cameraRef}
+            style={styles.camera}
+            facing={cameraDirection}
+            autoFocus="on"
+            resizeMode="cover"
+            onCameraReady={handleCameraReady}
+            onMountError={() => setCameraStatus("error")}
           >
-            <View style={styles.captureInnerCircle} />
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.flipButton}
-            onPress={() =>
-              setCameraDirection(cameraDirection === "back" ? "front" : "back")
-            }
-          >
-            <Ionicons name="camera-reverse-outline" size={24} color="#fff" />
-          </TouchableOpacity>
-        </CameraView>
+            {cameraStatus === "loading" && (
+              <View style={styles.cameraLoadingOverlay}>
+                <ActivityIndicator size="large" color="#fff" />
+                <Text style={styles.cameraLoadingText}>Initializing camera...</Text>
+              </View>
+            )}
+          </CameraView>
+
+          <View style={styles.cameraControls}>
+            <TouchableOpacity
+              style={styles.flipButton}
+              onPress={() => setCameraDirection(cameraDirection === "back" ? "front" : "back")}
+            >
+              <Ionicons name="camera-reverse-outline" size={24} color="#fff" />
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.captureButton}
+              onPress={takePicture}
+              disabled={cameraStatus !== "ready" || isCapturing}
+            >
+              <View style={[
+                styles.captureInnerCircle,
+                (cameraStatus !== "ready" || isCapturing) && styles.disabledCircle
+              ]}>
+                {(cameraStatus !== "ready" || isCapturing) && (
+                  <ActivityIndicator size="small" color="#fff" />
+                )}
+              </View>
+              {(cameraStatus !== "ready" || isCapturing) && (
+                <Text style={styles.processingText}>
+                  {cameraStatus !== "ready" ? "Camera not ready" : "Processing..."}
+                </Text>
+              )}
+            </TouchableOpacity>
+          </View>
+        </View>
       )}
+
       {isSending && (
         <View style={styles.loadingOverlay}>
           <ActivityIndicator size="large" color="#fff" />
@@ -189,30 +287,45 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#000",
   },
+  cameraContainer: {
+    flex: 1,
+    position: 'relative',
+  },
   camera: {
     flex: 1,
   },
+  cameraControls: {
+    position: 'absolute',
+    bottom: 0,
+    width: '100%',
+    paddingBottom: 30,
+    alignItems: 'center',
+  },
   captureButton: {
-    position: "absolute",
-    bottom: 30,
-    alignSelf: "center",
+    alignSelf: 'center',
     backgroundColor: "#fff",
     width: 70,
     height: 70,
     borderRadius: 35,
-    alignItems: "center",
-    justifyContent: "center",
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 10,
   },
   captureInnerCircle: {
     backgroundColor: "#FF3B30",
     width: 50,
     height: 50,
     borderRadius: 25,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  disabledCircle: {
+    backgroundColor: "#555",
   },
   flipButton: {
-    position: "absolute",
-    bottom: 45,
+    position: 'absolute',
     right: 40,
+    bottom: 45,
     backgroundColor: "rgba(0,0,0,0.6)",
     padding: 8,
     borderRadius: 20,
@@ -270,9 +383,48 @@ const styles = StyleSheet.create({
     alignItems: "center",
     zIndex: 10,
   },
+  cameraLoadingOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.3)',
+  },
+  cameraLoadingText: {
+    color: '#fff',
+    marginTop: 10,
+  },
   loadingText: {
     color: "#fff",
     marginTop: 10,
     fontSize: 16,
+  },
+  errorText: {
+    color: "#FF3B30",
+    fontSize: 18,
+    textAlign: "center",
+    marginVertical: 20,
+  },
+  permissionButton: {
+    backgroundColor: "#007AFF",
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+  },
+  buttonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  processingText: {
+    position: 'absolute',
+    bottom: -25,
+    color: '#fff',
+    fontSize: 12,
+    textAlign: 'center',
+    width: '100%',
   },
 });
