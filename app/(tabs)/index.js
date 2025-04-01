@@ -10,8 +10,10 @@ import {
   Dimensions
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
+import { useRouter } from 'expo-router';
 
 const HomeScreen = () => {
+  const router = useRouter();
   const [activeStat, setActiveStat] = useState(0);
   const scrollY = new Animated.Value(0);
   const { width } = Dimensions.get('window');
@@ -115,7 +117,7 @@ const HomeScreen = () => {
               NadiRakshak is a crowdsourced river pollution reporting app that empowers citizens to report pollution incidents in real time by submitting images, GPS locations, and severity levels. The app integrates government initiatives and offers historical insights into river conditions, helping drive community action for cleaner rivers.
             </Text>
             <TouchableOpacity className="bg-blue-600 p-3 rounded-xl items-center">
-              <Text className="text-white font-medium">Report Pollution Now</Text>
+              <Text className="text-white font-medium" onPress={() => router.push("screens/login")}>Report Pollution Now</Text>
             </TouchableOpacity>
           </View>
           

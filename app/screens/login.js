@@ -11,7 +11,7 @@ import {
   ScrollView,
   Image,
 } from "react-native";
-import { Link, useRouter } from "expo-router";
+import { useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { Lock, Mail, EyeOff, Eye } from "lucide-react-native";
 
@@ -46,7 +46,7 @@ export default function LoginScreen() {
 
       showToast("success", "Login Successful", "Redirecting to home...");
       console.log("hello");
-      setTimeout(() => router.replace("/index"), 1500); // Delay for toast visibility
+      setTimeout(() => router.replace("/"), 1500); // Delay for toast visibility
     } catch (error) {
       console.error("Login error:", error.message);
       showToast("error", "Login Failed", error.message);
@@ -113,11 +113,11 @@ export default function LoginScreen() {
 
             {/* Forgot Password */}
             <View className="items-end mb-6">
-              <Link href="/screens/forgot-password" asChild>
+             
                 <TouchableOpacity>
-                  <Text className="text-blue-600 font-semibold">Forgot Password?</Text>
+                  <Text className="text-blue-600 font-semibold" onPress={()=>router.push("/screens/forgot-password")}>Forgot Password?</Text>
                 </TouchableOpacity>
-              </Link>
+            
             </View>
 
             {/* Login Button */}
@@ -128,11 +128,11 @@ export default function LoginScreen() {
             {/* Sign Up Link */}
             <View className="flex-row justify-center mt-4">
               <Text className="text-gray-700">Don't have an account? </Text>
-              <Link href="/screens/signup" asChild>
+              
                 <TouchableOpacity>
-                  <Text className="text-blue-600 font-semibold">Sign Up</Text>
+                  <Text className="text-blue-600 font-semibold" onPress={()=>router.push("/screens/signup")}>Sign Up</Text>
                 </TouchableOpacity>
-              </Link>
+              
             </View>
           </View>
         </View>
