@@ -171,18 +171,18 @@ export default function CameraScreen() {
   // Permission checks
   if (!cameraPermission || !locationPermission) {
     return (
-      <View style={styles.loadingContainer}>
+      <View className="flex-1 justify-center items-center bg-black">
         <ActivityIndicator size="large" color="#007AFF" />
-        <Text style={styles.loadingText}>Checking permissions...</Text>
+        <Text className="text-white mt-2.5 text-base">Checking permissions...</Text>
       </View>
     );
   }
 
   if (cameraPermission.status !== "granted" || locationPermission.status !== "granted") {
     return (
-      <View style={styles.errorContainer}>
+      <View className="flex-1 justify-center items-center px-5 bg-black">
         <Ionicons name="alert-circle-outline" size={60} color="#FF3B30" />
-        <Text style={styles.errorText}>
+        <Text className="text-red-500 text-lg text-center my-5">
           {cameraPermission.status !== "granted" && locationPermission.status !== "granted"
             ? "Camera and location access are required"
             : cameraPermission.status !== "granted"
@@ -197,35 +197,41 @@ export default function CameraScreen() {
               setLocationPermission({ status });
             }
           }}
-          style={styles.permissionButton}
+          className="bg-blue-500 py-2.5 px-5 rounded-lg"
         >
-          <Text style={styles.buttonText}>Grant Permissions</Text>
+          <Text className="text-white text-base font-bold">Grant Permissions</Text>
         </TouchableOpacity>
       </View>
     );
   }
 
   return (
-    <View style={styles.container}>
+    <View className="flex-1 bg-black">
       {photoUri ? (
-        <View style={styles.previewContainer}>
-          <Image source={{ uri: photoUri }} style={styles.previewImage} />
-          <View style={styles.previewButtons}>
-            <TouchableOpacity style={styles.iconButton} onPress={handleRetake}>
+        <View className="flex-1 justify-center items-center p-5 bg-black">
+          <Image source={{ uri: photoUri }} className="w-[90%] h-[70%] rounded-lg" />
+          <View className="flex-row mt-5 justify-around w-[80%]">
+            <TouchableOpacity 
+              className="items-center justify-center bg-blue-500 py-2.5 px-5 rounded-lg"
+              onPress={handleRetake}
+            >
               <Ionicons name="camera-reverse-outline" size={30} color="#fff" />
-              <Text style={styles.iconText}>Retake</Text>
+              <Text className="text-white text-sm mt-1">Retake</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.iconButton} onPress={sendReport}>
+            <TouchableOpacity 
+              className="items-center justify-center bg-blue-500 py-2.5 px-5 rounded-lg"
+              onPress={sendReport}
+            >
               <Ionicons name="cloud-upload-outline" size={30} color="#fff" />
-              <Text style={styles.iconText}>Send</Text>
+              <Text className="text-white text-sm mt-1">Send</Text>
             </TouchableOpacity>
           </View>
         </View>
       ) : (
-        <View style={styles.cameraContainer}>
+        <View className="flex-1 relative">
           <CameraView
             ref={cameraRef}
-            style={styles.camera}
+            className="flex-1"
             facing={cameraDirection}
             autoFocus="on"
             resizeMode="cover"
@@ -233,36 +239,35 @@ export default function CameraScreen() {
             onMountError={() => setCameraStatus("error")}
           >
             {cameraStatus === "loading" && (
-              <View style={styles.cameraLoadingOverlay}>
+              <View className="absolute top-0 left-0 right-0 bottom-0 justify-center items-center bg-black/30">
                 <ActivityIndicator size="large" color="#fff" />
-                <Text style={styles.cameraLoadingText}>Initializing camera...</Text>
+                <Text className="text-white mt-2.5">Initializing camera...</Text>
               </View>
             )}
           </CameraView>
 
-          <View style={styles.cameraControls}>
+          <View className="absolute bottom-0 w-full pb-7 items-center">
             <TouchableOpacity
-              style={styles.flipButton}
+              className="absolute right-10 bottom-11 bg-black/60 p-2 rounded-full"
               onPress={() => setCameraDirection(cameraDirection === "back" ? "front" : "back")}
             >
               <Ionicons name="camera-reverse-outline" size={24} color="#fff" />
             </TouchableOpacity>
 
             <TouchableOpacity
-              style={styles.captureButton}
+              className="self-center bg-white w-[70px] h-[70px] rounded-[35px] items-center justify-center mb-2.5"
               onPress={takePicture}
               disabled={cameraStatus !== "ready" || isCapturing}
             >
-              <View style={[
-                styles.captureInnerCircle,
-                (cameraStatus !== "ready" || isCapturing) && styles.disabledCircle
-              ]}>
+              <View className={`w-[50px] h-[50px] rounded-[25px] justify-center items-center ${
+                cameraStatus !== "ready" || isCapturing ? "bg-gray-500" : "bg-red-500"
+              }`}>
                 {(cameraStatus !== "ready" || isCapturing) && (
                   <ActivityIndicator size="small" color="#fff" />
                 )}
               </View>
               {(cameraStatus !== "ready" || isCapturing) && (
-                <Text style={styles.processingText}>
+                <Text className="absolute -bottom-6 text-white text-xs text-center w-full">
                   {cameraStatus !== "ready" ? "Camera not ready" : "Processing..."}
                 </Text>
               )}
@@ -272,159 +277,12 @@ export default function CameraScreen() {
       )}
 
       {isSending && (
-        <View style={styles.loadingOverlay}>
+        <View className="absolute top-0 left-0 right-0 bottom-0 bg-black/60 justify-center items-center z-10">
           <ActivityIndicator size="large" color="#fff" />
-          <Text style={styles.loadingText}>Sending Report...</Text>
+          <Text className="text-white mt-2.5 text-base">Sending Report...</Text>
         </View>
       )}
       <ToastComponent />
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#000",
-  },
-  cameraContainer: {
-    flex: 1,
-    position: 'relative',
-  },
-  camera: {
-    flex: 1,
-  },
-  cameraControls: {
-    position: 'absolute',
-    bottom: 0,
-    width: '100%',
-    paddingBottom: 30,
-    alignItems: 'center',
-  },
-  captureButton: {
-    alignSelf: 'center',
-    backgroundColor: "#fff",
-    width: 70,
-    height: 70,
-    borderRadius: 35,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 10,
-  },
-  captureInnerCircle: {
-    backgroundColor: "#FF3B30",
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  disabledCircle: {
-    backgroundColor: "#555",
-  },
-  flipButton: {
-    position: 'absolute',
-    right: 40,
-    bottom: 45,
-    backgroundColor: "rgba(0,0,0,0.6)",
-    padding: 8,
-    borderRadius: 20,
-  },
-  previewContainer: {
-    flex: 1,
-    backgroundColor: "#000",
-    justifyContent: "center",
-    alignItems: "center",
-    padding: 20,
-  },
-  previewImage: {
-    width: "90%",
-    height: "70%",
-    borderRadius: 10,
-  },
-  previewButtons: {
-    flexDirection: "row",
-    marginTop: 20,
-    justifyContent: "space-around",
-    width: "80%",
-  },
-  iconButton: {
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#007AFF",
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 8,
-  },
-  iconText: {
-    color: "#fff",
-    fontSize: 14,
-    marginTop: 5,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  errorContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    paddingHorizontal: 20,
-  },
-  loadingOverlay: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: "rgba(0,0,0,0.6)",
-    justifyContent: "center",
-    alignItems: "center",
-    zIndex: 10,
-  },
-  cameraLoadingOverlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0,0,0,0.3)',
-  },
-  cameraLoadingText: {
-    color: '#fff',
-    marginTop: 10,
-  },
-  loadingText: {
-    color: "#fff",
-    marginTop: 10,
-    fontSize: 16,
-  },
-  errorText: {
-    color: "#FF3B30",
-    fontSize: 18,
-    textAlign: "center",
-    marginVertical: 20,
-  },
-  permissionButton: {
-    backgroundColor: "#007AFF",
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 8,
-  },
-  buttonText: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "bold",
-  },
-  processingText: {
-    position: 'absolute',
-    bottom: -25,
-    color: '#fff',
-    fontSize: 12,
-    textAlign: 'center',
-    width: '100%',
-  },
-});
