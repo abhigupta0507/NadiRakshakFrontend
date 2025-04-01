@@ -4,8 +4,8 @@ import {
   Text,
   TouchableOpacity,
   ActivityIndicator,
-  StyleSheet,
   Image,
+  StyleSheet,
 } from "react-native";
 import { CameraView, useCameraPermissions } from "expo-camera";
 import { Ionicons } from "@expo/vector-icons";
@@ -171,18 +171,18 @@ export default function CameraScreen() {
   // Permission checks
   if (!cameraPermission || !locationPermission) {
     return (
-      <View className="flex-1 justify-center items-center bg-black">
+      <View className="flex-1 justify-center items-center">
         <ActivityIndicator size="large" color="#007AFF" />
-        <Text className="text-white mt-2.5 text-base">Checking permissions...</Text>
+        <Text className="text-base mt-2.5">Checking permissions...</Text>
       </View>
     );
   }
 
   if (cameraPermission.status !== "granted" || locationPermission.status !== "granted") {
     return (
-      <View className="flex-1 justify-center items-center px-5 bg-black">
+      <View className="flex-1 justify-center items-center px-5">
         <Ionicons name="alert-circle-outline" size={60} color="#FF3B30" />
-        <Text className="text-red-500 text-lg text-center my-5">
+        <Text className="text-lg text-[#FF3B30] text-center my-5">
           {cameraPermission.status !== "granted" && locationPermission.status !== "granted"
             ? "Camera and location access are required"
             : cameraPermission.status !== "granted"
@@ -197,7 +197,7 @@ export default function CameraScreen() {
               setLocationPermission({ status });
             }
           }}
-          className="bg-blue-500 py-2.5 px-5 rounded-lg"
+          className="bg-[#007AFF] py-2.5 px-5 rounded-lg"
         >
           <Text className="text-white text-base font-bold">Grant Permissions</Text>
         </TouchableOpacity>
@@ -208,30 +208,31 @@ export default function CameraScreen() {
   return (
     <View className="flex-1 bg-black">
       {photoUri ? (
-        <View className="flex-1 justify-center items-center p-5 bg-black">
+        <View className="flex-1 bg-black justify-center items-center p-5">
           <Image source={{ uri: photoUri }} className="w-[90%] h-[70%] rounded-lg" />
           <View className="flex-row mt-5 justify-around w-[80%]">
             <TouchableOpacity 
-              className="items-center justify-center bg-blue-500 py-2.5 px-5 rounded-lg"
+              className="items-center justify-center bg-[#007AFF] py-2.5 px-5 rounded-lg"
               onPress={handleRetake}
             >
               <Ionicons name="camera-reverse-outline" size={30} color="#fff" />
-              <Text className="text-white text-sm mt-1">Retake</Text>
+              <Text className="text-white text-sm mt-1.5">Retake</Text>
             </TouchableOpacity>
             <TouchableOpacity 
-              className="items-center justify-center bg-blue-500 py-2.5 px-5 rounded-lg"
+              className="items-center justify-center bg-[#007AFF] py-2.5 px-5 rounded-lg"
               onPress={sendReport}
             >
               <Ionicons name="cloud-upload-outline" size={30} color="#fff" />
-              <Text className="text-white text-sm mt-1">Send</Text>
+              <Text className="text-white text-sm mt-1.5">Send</Text>
             </TouchableOpacity>
           </View>
         </View>
       ) : (
         <View className="flex-1 relative">
+          {/* Use style prop for CameraView instead of className */}
           <CameraView
             ref={cameraRef}
-            className="flex-1"
+            style={styles.camera}
             facing={cameraDirection}
             autoFocus="on"
             resizeMode="cover"
@@ -239,35 +240,35 @@ export default function CameraScreen() {
             onMountError={() => setCameraStatus("error")}
           >
             {cameraStatus === "loading" && (
-              <View className="absolute top-0 left-0 right-0 bottom-0 justify-center items-center bg-black/30">
+              <View className="absolute inset-0 justify-center items-center bg-black/30">
                 <ActivityIndicator size="large" color="#fff" />
                 <Text className="text-white mt-2.5">Initializing camera...</Text>
               </View>
             )}
           </CameraView>
 
-          <View className="absolute bottom-0 w-full pb-7 items-center">
+          <View className="absolute bottom-0 w-full pb-8 items-center">
             <TouchableOpacity
-              className="absolute right-10 bottom-11 bg-black/60 p-2 rounded-full"
+              className="absolute right-10 bottom-[45px] bg-black/60 p-2 rounded-full"
               onPress={() => setCameraDirection(cameraDirection === "back" ? "front" : "back")}
             >
               <Ionicons name="camera-reverse-outline" size={24} color="#fff" />
             </TouchableOpacity>
 
             <TouchableOpacity
-              className="self-center bg-white w-[70px] h-[70px] rounded-[35px] items-center justify-center mb-2.5"
+              className="self-center bg-white w-[70px] h-[70px] rounded-full items-center justify-center mb-2.5"
               onPress={takePicture}
               disabled={cameraStatus !== "ready" || isCapturing}
             >
-              <View className={`w-[50px] h-[50px] rounded-[25px] justify-center items-center ${
-                cameraStatus !== "ready" || isCapturing ? "bg-gray-500" : "bg-red-500"
+              <View className={`w-[50px] h-[50px] rounded-full justify-center items-center ${
+                (cameraStatus !== "ready" || isCapturing) ? "bg-gray-500" : "bg-[#FF3B30]"
               }`}>
                 {(cameraStatus !== "ready" || isCapturing) && (
                   <ActivityIndicator size="small" color="#fff" />
                 )}
               </View>
               {(cameraStatus !== "ready" || isCapturing) && (
-                <Text className="absolute -bottom-6 text-white text-xs text-center w-full">
+                <Text className="absolute bottom-[-25px] text-white text-xs text-center w-full">
                   {cameraStatus !== "ready" ? "Camera not ready" : "Processing..."}
                 </Text>
               )}
@@ -277,7 +278,7 @@ export default function CameraScreen() {
       )}
 
       {isSending && (
-        <View className="absolute top-0 left-0 right-0 bottom-0 bg-black/60 justify-center items-center z-10">
+        <View className="absolute inset-0 bg-black/60 justify-center items-center z-10">
           <ActivityIndicator size="large" color="#fff" />
           <Text className="text-white mt-2.5 text-base">Sending Report...</Text>
         </View>
@@ -286,3 +287,10 @@ export default function CameraScreen() {
     </View>
   );
 }
+
+// Use StyleSheet for the camera component specifically
+const styles = StyleSheet.create({
+  camera: {
+    flex: 1,
+  },
+});
