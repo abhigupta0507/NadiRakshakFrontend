@@ -40,7 +40,7 @@ export default function EditDraftScreen() {
       
       if (!token) {
         showToast("error", "Unauthorized", "Please log in again.");
-        setTimeout(() => router.psub("../screens/login"), 1500);
+        setTimeout(() => router.push("/screens/login"), 1500);
         return;
       }
 
@@ -78,7 +78,7 @@ export default function EditDraftScreen() {
       
       if (!token) {
         showToast("error", "Unauthorized", "Please log in again.");
-        setTimeout(() => router.push("../screens/login"), 1500);
+        setTimeout(() => router.push("/screens/login"), 1500);
 
         return;
       }
@@ -210,7 +210,7 @@ export default function EditDraftScreen() {
       
       if (!token) {
         showToast("error", "Unauthorized", "Please log in again.");
-        setTimeout(() => router.push("../screens/login"), 1500);
+        setTimeout(() => router.push("/screens/login"), 1500);
         return;
       }
 

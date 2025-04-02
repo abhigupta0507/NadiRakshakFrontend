@@ -37,7 +37,7 @@ export default function ReportDetailsScreen() {
       
       if (!token) {
         showToast("error", "Unauthorized", "Please log in again.");
-        router.push("/login");
+        router.push("/screens/login");
         return;
       }
 
@@ -73,7 +73,7 @@ export default function ReportDetailsScreen() {
       
       if (!token) {
         showToast("error", "Unauthorized", "Please log in again.");
-        router.push("/login");
+        router.push("/screens/login");
         return;
       }
 

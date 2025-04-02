@@ -47,11 +47,11 @@ export default function ReportsScreen() {
       
       if (!token) {
         showToast("error", "Unauthorized", "Please log in again.");
-        router.push("/login");
+        router.push("/screens/login");
         return;
       }
 
-      const response = await fetch(`${BackendUrl}/reports/`, {
+      const response = await fetch(`${BackendUrl}/reports/myreports`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -82,7 +82,7 @@ export default function ReportsScreen() {
       
       if (!token) {
         showToast("error", "Unauthorized", "Please log in again.");
-        router.push("/login");
+        router.push("/screens/login");
         return;
       }
 

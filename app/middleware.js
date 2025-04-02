@@ -12,7 +12,7 @@ export default function AuthMiddleware() {
       console.log(token);
 
       if (!token) {
-        router.replace("../screens/login");
+        router.replace("/screens/login");
       }
     };
 

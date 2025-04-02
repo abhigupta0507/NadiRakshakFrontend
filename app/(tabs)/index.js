@@ -649,62 +649,6 @@
             </View>
           </View>
         </Animated.ScrollView>
-        
-        {/* Bottom Tab Bar */}
-        <Animated.View 
-          style={{ 
-            transform: [{ translateY: tabBarAnimation.interpolate({
-              inputRange: [0, 1],
-              outputRange: [100, 0]
-            }) }],
-            position: 'absolute',
-            bottom: 0,
-            left: 0,
-            right: 0
-          }}
-        >
-          <BlurView intensity={90} tint="light" className="border-t border-gray-200">
-            <SafeAreaView edges={['bottom']}>
-              <View className="flex-row justify-around py-2">
-                <TouchableOpacity 
-                  className="items-center px-4 py-2" 
-                  onPress={() => setActiveTab('home')}
-                >
-                  <Ionicons name="home" size={22} color={activeTab === 'home' ? '#0284c7' : '#64748b'} />
-                  <Text className={`text-xs mt-1 ${activeTab === 'home' ? 'text-blue-600 font-medium' : 'text-gray-500'}`}>Home</Text>
-                </TouchableOpacity>
-                
-                <TouchableOpacity 
-                  className="items-center px-4 py-2" 
-                  onPress={() => setActiveTab('map')}
-                >
-                  <Ionicons name="map" size={22} color={activeTab === 'map' ? '#0284c7' : '#64748b'} />
-                  <Text className={`text-xs mt-1 ${activeTab === 'map' ? 'text-blue-600 font-medium' : 'text-gray-500'}`}>Map</Text>
-                </TouchableOpacity>
-                
-                <TouchableOpacity className="-mt-4 bg-blue-600 rounded-full w-16 h-16 items-center justify-center shadow-lg">
-                  <MaterialCommunityIcons name="camera-plus" size={28} color="white" />
-                </TouchableOpacity>
-                
-                <TouchableOpacity 
-                  className="items-center px-4 py-2" 
-                  onPress={() => setActiveTab('activity')}
-                >
-                  <Ionicons name="pulse" size={22} color={activeTab === 'activity' ? '#0284c7' : '#64748b'} />
-                  <Text className={`text-xs mt-1 ${activeTab === 'activity' ? 'text-blue-600 font-medium' : 'text-gray-500'}`}>Activity</Text>
-                </TouchableOpacity>
-                
-                <TouchableOpacity 
-                  className="items-center px-4 py-2" 
-                  onPress={() => setActiveTab('profile')}
-                >
-                  <Ionicons name="person" size={22} color={activeTab === 'profile' ? '#0284c7' : '#64748b'} />
-                  <Text className={`text-xs mt-1 ${activeTab === 'profile' ? 'text-blue-600 font-medium' : 'text-gray-500'}`}>Profile</Text>
-                </TouchableOpacity>
-              </View>
-            </SafeAreaView>
-          </BlurView>
-        </Animated.View>
         <ToastComponent />
       </SafeAreaView>
     );

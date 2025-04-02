@@ -37,7 +37,7 @@ export default function CampaignsScreen() {
       
       if (!token) {
         showToast("error", "Unauthorized", "Please log in again.");
-        router.push("/login");
+        router.push("/screens/login");
         return;
       }
 

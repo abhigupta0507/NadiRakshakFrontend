@@ -45,7 +45,7 @@ export default function UpdateCampaign() {
         const token = await SecureStore.getItemAsync("accessToken");
         if (!token) {
           showToast("error", "Unauthorized", "Please log in again.");
-          router.push("/login");
+          router.push("/screens/login");
           return;
         }
         setAuthToken(token);

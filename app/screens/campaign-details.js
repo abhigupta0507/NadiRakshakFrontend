@@ -37,14 +37,14 @@ const CampaignDetails = ({ route }) => {
         const token = await SecureStore.getItemAsync("accessToken");
         if (!token) {
           showToast("error", "Unauthorized", "Please log in again.");
-          router.push("/login");
+          router.push("/screens/login");
           return;
         }
         setAuthToken(token);
       } catch (error) {
         console.error("Error retrieving token:", error);
         showToast("error", "Error", "Authentication error. Please log in again.");
-        router.push("/login");
+        router.push("/screens/login");
       }
     };
     
