@@ -1,216 +1,185 @@
-  // code 1
-  
-  import React, { useState, useEffect, useRef } from 'react';
-  import { 
-    View, 
-    Text, 
-    ScrollView, 
-    Image, 
-    TouchableOpacity, 
-    SafeAreaView,
-    Animated,
-    Dimensions,
-    FlatList,
-    Platform,
-    RefreshControl 
-  } from 'react-native';
-  import { StatusBar } from 'expo-status-bar';
-  import { BlurView } from 'expo-blur';
-  import { LinearGradient } from 'expo-linear-gradient';
-  import { MaterialCommunityIcons, Feather, Ionicons } from '@expo/vector-icons';
-  import * as Haptics from 'expo-haptics';
-  import {BackendUrl} from "@/secrets";
-  import * as SecureStore from "expo-secure-store";
-  import { Linking } from 'react-native'; // Add this import
-  import ToastComponent, {showToast}  from "@/app/components/Toast";
-  import { useRouter } from 'expo-router';
-  import { useCallback } from 'react';
+import React, { useState, useEffect, useRef } from "react";
+import {
+  View,
+  Text,
+  ScrollView,
+  Image,
+  TouchableOpacity,
+  SafeAreaView,
+  Animated,
+  Dimensions,
+  FlatList,
+  Platform,
+  RefreshControl,
+} from "react-native";
+import { StatusBar } from "expo-status-bar";
+import { BlurView } from "expo-blur";
+import { LinearGradient } from "expo-linear-gradient";
+import { MaterialCommunityIcons, Feather, Ionicons } from "@expo/vector-icons";
+import * as Haptics from "expo-haptics";
+import { BackendUrl } from "@/secrets";
+import * as SecureStore from "expo-secure-store";
+import { Linking } from "react-native";
+import ToastComponent, { showToast } from "@/app/components/Toast";
+import { useRouter } from "expo-router";
+import { useCallback } from "react";
+import WaterPollutionMap from "@/app/components/WaterPollutionMap";
+import IndexCard from "@/app/components/IndexCard";
 
-  const { width, height } = Dimensions.get('window');
+const { width, height } = Dimensions.get("window");
 
-  const HomeScreen = () => {
-    // State management
-    const [activeStat, setActiveStat] = useState(0);
-    const [activeTab, setActiveTab] = useState('home');
-    const scrollY = new Animated.Value(0);
-    const statAnimatedValue = useRef(new Animated.Value(0)).current;
-    const [authToken, setAuthToken] = useState(null);
-    const [newsData,setNewsData] = useState();
-    const [refreshing, setRefreshing] = useState(false);
-    // Animation references
-    const tabBarAnimation = useRef(new Animated.Value(1)).current;
-    const buttonScale = useRef(new Animated.Value(1)).current;
-    const router = useRouter();
+const HomeScreen = () => {
+  // State management
+  const [activeStat, setActiveStat] = useState(0);
+  const [activeTab, setActiveTab] = useState("home");
+  const scrollY = useRef(new Animated.Value(0)).current;
+  const statAnimatedValue = useRef(new Animated.Value(0)).current;
+  const [authToken, setAuthToken] = useState(null);
+  const [newsData, setNewsData] = useState([]);
+  const [refreshing, setRefreshing] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  // Animation references
+  const tabBarAnimation = useRef(new Animated.Value(1)).current;
+  const buttonScale = useRef(new Animated.Value(1)).current;
+  const router = useRouter();
 
-    
-    const headerTranslateY = scrollY.interpolate({
-      inputRange: [0, 150, 250],  // Adjust input range for smoother effect
-      outputRange: [0, -height * 0.2, -height * 0.3], // Moves header fully out of view
-      extrapolate: 'clamp',
+  const headerTranslateY = scrollY.interpolate({
+    inputRange: [0, 150, 250], // Adjust input range for smoother effect
+    outputRange: [0, -height * 0.2, -height * 0.3], // Moves header fully out of view
+    extrapolate: "clamp",
+  });
+
+  const headerOpacity = scrollY.interpolate({
+    inputRange: [0, 100, 200], // Adjusted input range for better transition
+    outputRange: [1, 0.5, 0], // Fades out completely
+    extrapolate: "clamp",
+  });
+
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    fetchNews().then(() => {
+      setRefreshing(false);
     });
-    
-    const headerOpacity = scrollY.interpolate({
-      inputRange: [0, 100, 200],  // Adjusted input range for better transition
-      outputRange: [1, 0.5, 0],  // Fades out completely
-      extrapolate: 'clamp',
-    });
-    
+  }, []);
 
-    const onRefresh = useCallback(() => {
-      setRefreshing(true);
-      fetchNews().then(() => {
-        setRefreshing(false);
-      });
-    }, []);
+  // Statistics data
+  const statistics = [
+    {
+      id: 1,
+      value: "80%",
+      description: "of ocean pollution comes from land-based activities",
+      icon: "factory",
+      color: "#0ea5e9",
+    },
+    {
+      id: 2,
+      value: "8M",
+      description: "tons of plastic enter our oceans every year",
+      icon: "trash-can-outline",
+      color: "#f43f5e",
+    },
+    {
+      id: 3,
+      value: "50%",
+      description: "of the world's coral reefs have died in the last 30 years",
+      icon: "waves",
+      color: "#f59e0b",
+    },
+    {
+      id: 4,
+      value: "1B",
+      description: "people lack access to clean drinking water globally",
+      icon: "water-outline",
+      color: "#6366f1",
+    },
+  ];
 
-    // Statistics data
-    const statistics = [
-      { 
-        id: 1, 
-        value: '80%', 
-        description: 'of ocean pollution comes from land-based activities',
-        icon: 'factory',
-        color: '#0ea5e9' 
-      },
-      { 
-        id: 2, 
-        value: '8M', 
-        description: 'tons of plastic enter our oceans every year',
-        icon: 'trash-can-outline',
-        color: '#f43f5e' 
-      },
-      { 
-        id: 3, 
-        value: '50%', 
-        description: 'of the world\'s coral reefs have died in the last 30 years',
-        icon: 'waves',
-        color: '#f59e0b' 
-      },
-      { 
-        id: 4, 
-        value: '1B', 
-        description: 'people lack access to clean drinking water globally',
-        icon: 'water-outline',
-        color: '#6366f1' 
-      },
-    ];
+  // Government initiatives
+  const initiatives = [
+    {
+      id: 1,
+      title: "Clean Water Act",
+      description: "Regulates the discharge of pollutants into water bodies",
+      icon: "bank",
+      color: "#3b82f6",
+      progress: 78,
+    },
+    {
+      id: 2,
+      title: "Ocean Cleanup Fund",
+      description: "$500M allocated for ocean cleanup technologies",
+      icon: "cash",
+      color: "#10b981",
+      progress: 42,
+    },
+    {
+      id: 3,
+      title: "Water Quality Monitoring",
+      description: "Real-time monitoring of water bodies across the country",
+      icon: "chart-line",
+      color: "#8b5cf6",
+      progress: 91,
+    },
+  ];
 
-    // Government initiatives
-    const initiatives = [
-      {
-        id: 1,
-        title: 'Clean Water Act',
-        description: 'Regulates the discharge of pollutants into water bodies',
-        icon: 'bank',
-        color: '#3b82f6',
-        progress: 78,
+  const newsArticles = [
+    {
+      source: {
+        id: null,
+        name: "Policy News",
       },
-      {
-        id: 2,
-        title: 'Ocean Cleanup Fund',
-        description: '$500M allocated for ocean cleanup technologies',
-        icon: 'cash',
-        color: '#10b981',
-        progress: 42,
+      _id: "1",
+      title: "New policies to reduce industrial water pollution",
+      description:
+        "Government announces stricter regulations for industrial wastewater treatment...",
+      content: null,
+      url: "https://placehold.co/600x300/0284c7/FFFFFF?text=Water+Policy",
+      urlToImage:
+        "https://placehold.co/600x300/0284c7/FFFFFF?text=Water+Policy",
+      publishedAt: "2025-04-02T00:00:00.000Z",
+      category: "Policy",
+      __v: 0,
+      createdAt: "2025-04-02T00:00:00.000Z",
+      updatedAt: "2025-04-02T00:00:00.000Z",
+    },
+    {
+      source: {
+        id: null,
+        name: "Technology News",
       },
-      {
-        id: 3,
-        title: 'Water Quality Monitoring',
-        description: 'Real-time monitoring of water bodies across the country',
-        icon: 'chart-line',
-        color: '#8b5cf6',
-        progress: 91,
+      _id: "2",
+      title: "Innovative filtration technology shows promising results",
+      description:
+        "Researchers develop new nanomaterial that can remove microplastics from water...",
+      content: null,
+      url: "https://placehold.co/600x300/0284c7/FFFFFF?text=Water+Tech",
+      urlToImage: "https://placehold.co/600x300/0284c7/FFFFFF?text=Water+Tech",
+      publishedAt: "2025-03-28T00:00:00.000Z",
+      category: "Technology",
+      __v: 0,
+      createdAt: "2025-03-28T00:00:00.000Z",
+      updatedAt: "2025-03-28T00:00:00.000Z",
+    },
+    {
+      source: {
+        id: null,
+        name: "Community News",
       },
-    ];
-
-    useEffect(() => {
-      if (authToken) {
-        fetchNews();
-      }
-    }, [authToken]);
-    
-    const fetchNews = async () => {
-      const url = `${BackendUrl}/news`;
-      try {
-        const requestOptions = {
-          method: "GET",
-          redirect: "follow"
-        };
-        console.log("Fetching news from:", url);
-        
-        const response = await fetch(url, requestOptions);
-        const result = await response.text();
-        const data = JSON.parse(result);
-        
-        console.log("News data from API:", data);
-        
-        if (response.ok) {
-          // Update this path based on your actual API response structure
-          setNewsData(data.data?.news || data.news || data);
-          console.log("News data set:", newsData);
-        } else {
-          showToast("error", "Error", data.message || "Failed to load News");
-        }
-      } catch (error) {
-        console.error("Fetch error:", error);
-        showToast("error", "Error", "Failed to load News");
-      }
-    };
-    
-    // News articles
-    const newsArticles = [
-      {
-        source: {
-          id: null,
-          name: "Policy News"
-        },
-        _id: "1",
-        title: "New policies to reduce industrial water pollution",
-        description: "Government announces stricter regulations for industrial wastewater treatment...",
-        content: null,
-        url: "https://placehold.co/600x300/0284c7/FFFFFF?text=Water+Policy",
-        urlToImage: "https://placehold.co/600x300/0284c7/FFFFFF?text=Water+Policy",
-        publishedAt: "2025-04-02T00:00:00.000Z",
-        category: "Policy",
-        __v: 0,
-        createdAt: "2025-04-02T00:00:00.000Z",
-        updatedAt: "2025-04-02T00:00:00.000Z"
-      },
-      {
-        source: {
-          id: null,
-          name: "Technology News"
-        },
-        _id: "2",
-        title: "Innovative filtration technology shows promising results",
-        description: "Researchers develop new nanomaterial that can remove microplastics from water...",
-        content: null,
-        url: "https://placehold.co/600x300/0284c7/FFFFFF?text=Water+Tech",
-        urlToImage: "https://placehold.co/600x300/0284c7/FFFFFF?text=Water+Tech",
-        publishedAt: "2025-03-28T00:00:00.000Z",
-        category: "Technology",
-        __v: 0,
-        createdAt: "2025-03-28T00:00:00.000Z",
-        updatedAt: "2025-03-28T00:00:00.000Z"
-      },
-      {
-        source: {
-          id: null,
-          name: "Community News"
-        },
-        _id: "3",
-        title: "Community cleanup saves local river ecosystem",
-        description: "Volunteers remove over 2 tons of garbage from the riverbank during weekend event...",
-        content: null,
-        url: "https://placehold.co/600x300/0284c7/FFFFFF?text=River+Cleanup",
-        urlToImage: "https://placehold.co/600x300/0284c7/FFFFFF?text=River+Cleanup",
-        publishedAt: "2025-03-23T00:00:00.000Z",
-        category: "Community",
-        __v: 0,
-        createdAt: "2025-03-23T00:00:00.000Z",
-        updatedAt: "2025-03-23T00:00:00.000Z"
-      }
-    ];
+      _id: "3",
+      title: "Community cleanup saves local river ecosystem",
+      description:
+        "Volunteers remove over 2 tons of garbage from the riverbank during weekend event...",
+      content: null,
+      url: "https://placehold.co/600x300/0284c7/FFFFFF?text=River+Cleanup",
+      urlToImage:
+        "https://placehold.co/600x300/0284c7/FFFFFF?text=River+Cleanup",
+      publishedAt: "2025-03-23T00:00:00.000Z",
+      category: "Community",
+      __v: 0,
+      createdAt: "2025-03-23T00:00:00.000Z",
+      updatedAt: "2025-03-23T00:00:00.000Z",
+    },
+  ];
 
     // User action items
     const actionItems = [
@@ -247,146 +216,127 @@
       },
     ];
 
-    // Auto-rotate statistics with animation
-    useEffect(() => {
-      const interval = setInterval(() => {
-        // Animate out
+  // Auto-rotate statistics with animation
+  useEffect(() => {
+    const interval = setInterval(() => {
+      // Animate out
+      Animated.timing(statAnimatedValue, {
+        toValue: 1,
+        duration: 300,
+        useNativeDriver: true,
+      }).start(() => {
+        setActiveStat((prevStat) => (prevStat + 1) % statistics.length);
+        // Reset and animate in
+        statAnimatedValue.setValue(0);
         Animated.timing(statAnimatedValue, {
           toValue: 1,
-          duration: 300,
+          duration: 500,
           useNativeDriver: true,
-        }).start(() => {
-          setActiveStat((prevStat) => (prevStat + 1) % statistics.length);
-          // Reset and animate in
-          statAnimatedValue.setValue(0);
-          Animated.timing(statAnimatedValue, {
-            toValue: 1,
-            duration: 500,
-            useNativeDriver: true,
-          }).start();
-        });
-      }, 6000);
-      
-      return () => clearInterval(interval);
-    }, []);
-
-    // Animation values for header effects
-    const headerHeight = scrollY.interpolate({
-      inputRange: [0, 200],
-      outputRange: [height * 0.45, height * 0.15],
-      extrapolate: 'clamp',
-    });
-
-    const headerTitleOpacity = scrollY.interpolate({
-      inputRange: [0, 150, 200],
-      outputRange: [0, 0.7, 1],
-      extrapolate: 'clamp',
-    });
-
-    const headerContentOpacity = scrollY.interpolate({
-      inputRange: [0, 100],
-      outputRange: [1, 0],
-      extrapolate: 'clamp',
-    });
-
-    // Animation for statistics
-    const statOpacity = statAnimatedValue.interpolate({
-      inputRange: [0, 0.5, 1],
-      outputRange: [0, 0.5, 1],
-    });
-    
-    const statTranslateY = statAnimatedValue.interpolate({
-      inputRange: [0, 1],
-      outputRange: [20, 0],
-    });
-
-    // Button press animation
-    const onPressIn = () => {
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-      Animated.spring(buttonScale, {
-        toValue: 0.92,
-        useNativeDriver: true,
-      }).start();
-    };
-
-    const onPressOut = () => {
-      Animated.spring(buttonScale, {
-        toValue: 1,
-        friction: 4,
-        tension: 40,
-        useNativeDriver: true,
-      }).start();
-    };
-
-    // Show/hide tab bar on scroll
-    useEffect(() => {
-      scrollY.addListener(({value}) => {
-        if (value > 50) {
-          Animated.timing(tabBarAnimation, {
-            toValue: 0,
-            duration: 150,
-            useNativeDriver: true,
-          }).start();
-        } else {
-          Animated.timing(tabBarAnimation, {
-            toValue: 1,
-            duration: 150,
-            useNativeDriver: true,
-          }).start();
-        }
+        }).start();
       });
+    }, 6000);
 
-      return () => {
-        scrollY.removeAllListeners();
-      };
-    }, []);
+    return () => clearInterval(interval);
+  }, []);
 
-    // Progress bar renderer
-    const renderProgressBar = (progress) => {
-      return (
-        <View className="h-1 bg-gray-200 rounded-full w-full mt-2">
-          <View 
-            className="h-1 bg-blue-500 rounded-full" 
-            style={{ width: `${progress}%` }} 
-          />
-        </View>
-      );
+  // Animation values for header effects
+  const headerHeight = scrollY.interpolate({
+    inputRange: [0, 200],
+    outputRange: [height * 0.45, height * 0.15],
+    extrapolate: "clamp",
+  });
+
+  const headerTitleOpacity = scrollY.interpolate({
+    inputRange: [0, 150, 200],
+    outputRange: [0, 0.7, 1],
+    extrapolate: "clamp",
+  });
+
+  const headerContentOpacity = scrollY.interpolate({
+    inputRange: [0, 100],
+    outputRange: [1, 0],
+    extrapolate: "clamp",
+  });
+
+  // Animation for statistics
+  const statOpacity = statAnimatedValue.interpolate({
+    inputRange: [0, 0.5, 1],
+    outputRange: [0, 0.5, 1],
+  });
+
+  const statTranslateY = statAnimatedValue.interpolate({
+    inputRange: [0, 1],
+    outputRange: [20, 0],
+  });
+
+  // Button press animation
+  const onPressIn = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    Animated.spring(buttonScale, {
+      toValue: 0.92,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  const onPressOut = () => {
+    Animated.spring(buttonScale, {
+      toValue: 1,
+      friction: 4,
+      tension: 40,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  // Show/hide tab bar on scroll
+  useEffect(() => {
+    const scrollListener = scrollY.addListener(({ value }) => {
+      if (value > 50) {
+        Animated.timing(tabBarAnimation, {
+          toValue: 0,
+          duration: 150,
+          useNativeDriver: true,
+        }).start();
+      } else {
+        Animated.timing(tabBarAnimation, {
+          toValue: 1,
+          duration: 150,
+          useNativeDriver: true,
+        }).start();
+      }
+    });
+
+    return () => {
+      scrollY.removeListener(scrollListener);
     };
+  }, []);
 
+  // Progress bar renderer
+  const renderProgressBar = (progress) => {
     return (
-      <SafeAreaView className="flex-1 bg-blue-50">
-        <StatusBar style="dark" />
-        
-        {/* Parallax Header */}
-    <Animated.View 
-      style={{ 
-        transform: [{ translateY: headerTranslateY }],
-        opacity: headerOpacity,
-        position: 'absolute',
-        zIndex: 10,
-        width: '100%',
-      }}
-      className="h-64 overflow-hidden"
-    >
-      <Image 
-        source={{ uri: 'https://placehold.co/600x400/0284c7/FFFFFF?text=Ocean+Water' }} 
-        className="w-full h-full absolute"
-        resizeMode="cover"
-      />
-      <View className="absolute inset-0 bg-blue-900/50 p-6 justify-end">
-        <Text className="text-white text-4xl font-bold mb-2">Save Our Waters</Text>
-        <Text className="text-blue-100 text-lg">A global initiative for cleaner oceans</Text>
+      <View className="h-1 bg-gray-200 rounded-full w-full mt-2">
+        <View
+          className="h-1 bg-blue-500 rounded-full"
+          style={{ width: `${progress}%` }}
+        />
       </View>
-    </Animated.View>
-    
-    {/* <View className="flex-1 bg-white"> */}
-      <Animated.ScrollView
-        className="flex-1 pt-5"
+    );
+  };
+
+  return (
+    <SafeAreaView className="flex-1 bg-blue-50">
+      <StatusBar style="dark" />
+
+      {/* Main Content */}
+      <ScrollView
+        className="flex-1"
         onScroll={Animated.event(
           [{ nativeEvent: { contentOffset: { y: scrollY } } }],
-          { useNativeDriver: true }
+          { useNativeDriver: false } // Changed to false for better compatibility
         )}
         scrollEventThrottle={16}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
       >
         {/* Spacer for header */}
         <View className="h-64" />
@@ -612,22 +562,21 @@
                     <Text className="text-white text-3xl font-bold">12</Text>
                     <Text className="text-blue-100 text-xs mt-1">Reports Filed</Text>
                   </View>
-                  <View className="items-center">
-                    <Text className="text-white text-3xl font-bold">4</Text>
-                    <Text className="text-blue-100 text-xs mt-1">Cleanups Joined</Text>
-                  </View>
-                  <View className="items-center">
-                    <Text className="text-white text-3xl font-bold">87</Text>
-                    <Text className="text-blue-100 text-xs mt-1">Impact Score</Text>
-                  </View>
-                </View>
+                </TouchableOpacity>
+              ))
+            ) : (
+              <View className="items-center justify-center p-8">
+                <Text className="text-gray-500">
+                  No news articles available
+                </Text>
               </View>
-            </View>
-          </Animated.ScrollView>
-    {/* </View> */}
-        <ToastComponent />
-      </SafeAreaView>
-    );
-  };
+            )}
+          </View>
+        </View>
+      </ScrollView>
+      <ToastComponent />
+    </SafeAreaView>
+  );
+};
 
-  export default HomeScreen;
+export default HomeScreen;
