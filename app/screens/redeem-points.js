@@ -8,6 +8,7 @@ import StoreItemCard from "../components/StoreItemCard";
 import OrderCard from "../components/OrderCard";
 import { showToast } from "../components/Toast";
 import { BackendUrl } from "../../secrets";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function PointsRedemptionScreen() {
   const router = useRouter();
@@ -502,7 +503,7 @@ export default function PointsRedemptionScreen() {
   };
 
   return (
-    <View className="flex-1 bg-gray-100">
+    <SafeAreaView className="flex-1 bg-gray-100">
       {/* Header */}
       <Header title={"Redeem Points"} subtitle={"Exchange your points for exclusive rewards"} />
       
@@ -519,6 +520,6 @@ export default function PointsRedemptionScreen() {
       
       {/* Address Modal */}
       {renderAddressModal()}
-    </View>
+    </SafeAreaView>
   );
 }

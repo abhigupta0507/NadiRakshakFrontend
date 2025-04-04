@@ -7,6 +7,8 @@ import Header from "../components/Header";
 import CampaignCard from "../components/CampaignCard";
 import { showToast } from "../components/Toast";
 import { BackendUrl } from "../../secrets";
+import { SafeAreaView } from "react-native-safe-area-context";
+
 
 export default function CampaignsScreen() {
   const router = useRouter();
@@ -71,17 +73,24 @@ export default function CampaignsScreen() {
   };
 
   return (
-    <View className="flex-1 bg-gray-100">
+    <SafeAreaView className="flex-1 bg-gray-100">
       {/* Header with Plus Button */}
       <View className="relative">
-        <Header title={"Community Campaign"} subtitle={"Join a course and make a difference"} />
-        <TouchableOpacity
+      <Header 
+          title="Community Campaign" 
+          subtitle="Join a course and make a difference"
+          showButton={true}
+          onAddPress={() => router.push("/screens/CreateCampaign")}
+      />
+
+        {/* <TouchableOpacity
           onPress={() => router.push("/screens/CreateCampaign")}
           style={{
             position: "absolute",
-            top: "40%", // Align with text
-            transform: [{ translateY: -10 }], // Adjust for centering,
-            right: 30,
+            top: "50%",
+            left: "80%",
+            transform: [{ translateX: -20 }, { translateY: -20 }],
+
             backgroundColor: "white",
             borderRadius: 25,
             width: 40,
@@ -96,7 +105,7 @@ export default function CampaignsScreen() {
           }}
         >
           <Ionicons name="add" size={24} color="black" />
-        </TouchableOpacity>
+        </TouchableOpacity> */}
       </View>
 
       {/* Campaign List */}
@@ -154,6 +163,6 @@ export default function CampaignsScreen() {
           ))}
         </ScrollView>
       )}
-    </View>
+    </SafeAreaView>
   );
 }

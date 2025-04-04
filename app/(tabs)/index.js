@@ -1,3 +1,5 @@
+  // code 1
+  
   import React, { useState, useEffect, useRef } from 'react';
   import { 
     View, 
@@ -30,7 +32,7 @@
     // State management
     const [activeStat, setActiveStat] = useState(0);
     const [activeTab, setActiveTab] = useState('home');
-    const scrollY = useRef(new Animated.Value(0)).current;
+    const scrollY = new Animated.Value(0);
     const statAnimatedValue = useRef(new Animated.Value(0)).current;
     const [authToken, setAuthToken] = useState(null);
     const [newsData,setNewsData] = useState();
@@ -39,6 +41,20 @@
     const tabBarAnimation = useRef(new Animated.Value(1)).current;
     const buttonScale = useRef(new Animated.Value(1)).current;
     const router = useRouter();
+
+    
+    const headerTranslateY = scrollY.interpolate({
+      inputRange: [0, 150, 250],  // Adjust input range for smoother effect
+      outputRange: [0, -height * 0.2, -height * 0.3], // Moves header fully out of view
+      extrapolate: 'clamp',
+    });
+    
+    const headerOpacity = scrollY.interpolate({
+      inputRange: [0, 100, 200],  // Adjusted input range for better transition
+      outputRange: [1, 0.5, 0],  // Fades out completely
+      extrapolate: 'clamp',
+    });
+    
 
     const onRefresh = useCallback(() => {
       setRefreshing(true);
@@ -336,319 +352,270 @@
 
     return (
       <SafeAreaView className="flex-1 bg-blue-50">
-        <StatusBar style="light" />
+        <StatusBar style="dark" />
         
-        {/* Dynamic Header */}
-        <Animated.View 
-          style={{ 
-            height: headerHeight,
-            position: 'absolute',
-            zIndex: 10,
-            width: '100%',
-          }}
-        >
-          <Image 
-            source={{ uri: 'https://placehold.co/1000x800/0284c7/FFFFFF?text=Ocean+Waves' }} 
-            className="w-full h-full absolute"
-            resizeMode="cover"
-          />
-          <LinearGradient
-            colors={['rgba(6, 78, 129, 0.6)', 'rgba(6, 78, 129, 0.9)']}
-            className="absolute inset-0"
-          />
-          
-          {/* Header Navigation */}
-          <View className="flex-row justify-between items-center px-6 pt-6">
-            <View className="flex-row items-center">
-              <View className="w-10 h-10 rounded-full bg-white/20 items-center justify-center">
-                <MaterialCommunityIcons name="water" size={24} color="#fff" />
-              </View>
-              <Animated.Text 
-                style={{ opacity: headerTitleOpacity }}
-                className="text-white font-bold text-lg ml-3"
-              >
-                NadiRakshak
-              </Animated.Text>
-            </View>
-            <View className="flex-row">
-              <TouchableOpacity className="w-10 h-10 rounded-full bg-white/20 items-center justify-center mr-3">
-                <Feather name="bell" size={20} color="#fff" />
-              </TouchableOpacity>
-              <TouchableOpacity className="w-10 h-10 rounded-full bg-white/20 items-center justify-center">
-                <Feather name="menu" size={20} color="#fff" />
-              </TouchableOpacity>
-            </View>
-          </View>
-          
-          {/* Header Content */}
-          <Animated.View 
-            style={{ opacity: headerContentOpacity }}
-            className="flex-1 px-6 justify-end pb-12"
-          >
-            <Text className="text-white text-4xl font-bold mb-2">Save Our Waters</Text>
-            <Text className="text-blue-100 text-lg max-w-xs">Together we can restore our most precious resource</Text>
-            
-            <TouchableOpacity 
-              onPressIn={onPressIn}
-              onPressOut={onPressOut}
-              className="bg-white/20 backdrop-blur-lg px-5 py-3 rounded-full mt-6 flex-row items-center self-start"
-            >
-              <Animated.View style={{ transform: [{ scale: buttonScale }] }} className="flex-row items-center">
-                <MaterialCommunityIcons name="camera-plus" size={20} color="#fff" />
-                <Text className="text-white font-semibold ml-2">Report Pollution Now</Text>
-              </Animated.View>
-            </TouchableOpacity>
-          </Animated.View>
-        </Animated.View>
-        
-        <Animated.ScrollView 
-          className="flex-1"
-          onScroll={Animated.event(
-            [{ nativeEvent: { contentOffset: { y: scrollY } } }],
-            { useNativeDriver: false }
-          )}
-          scrollEventThrottle={16}
-          showsVerticalScrollIndicator={false}
-          refreshControl={
-            <RefreshControl
-              refreshing={refreshing}
-              onRefresh={onRefresh}
-              tintColor="#0284c7"
-              colors={["#0284c7"]} // Android
-              progressBackgroundColor="#ffffff" // Android
-            />
-          }
-        >
-          {/* Spacer for dynamic header */}
-          <View style={{ height: height * 0.4 }} />
-          
-          {/* Main Content */}
-          <View className="bg-white rounded-t-3xl -mt-8 pt-8 px-6 pb-32 shadow-xl">
-            
-            {/* Action Items */}
-            <View className="mb-8">
-              <Text className="text-gray-800 text-lg font-semibold mb-4">Quick Actions</Text>
-              <FlatList
-                data={actionItems}
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                keyExtractor={item => item.id.toString()}
-                contentContainerStyle={{ paddingRight: 20 }}
-                renderItem={({ item }) => (
-                  <TouchableOpacity 
-                    className="mr-4 p-4 rounded-xl shadow-sm overflow-hidden"
-                    style={{ width: width * 0.38, backgroundColor: `${item.color}10` }}
-                  >
-                    <View className="w-12 h-12 rounded-full mb-3 items-center justify-center" style={{ backgroundColor: `${item.color}25` }}>
-                      <MaterialCommunityIcons name={item.icon} size={24} color={item.color} />
-                    </View>
-                    <Text className="text-gray-800 font-semibold mb-1">{item.title}</Text>
-                    <Text className="text-gray-500 text-xs">{item.description}</Text>
-                  </TouchableOpacity>
-                )}
-              />
-            </View>
-            
-            {/* About NadiRakshak Section */}
-            <View className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl p-6 mb-8 shadow-sm">
-              <Text className="text-blue-800 text-lg font-semibold mb-3">About NadiRakshak</Text>
-              <Text className="text-gray-700 text-sm leading-relaxed mb-4">
-                NadiRakshak empowers citizens to report river pollution incidents in real time. Submit images, GPS locations, and severity levels to help government agencies take timely action. Together, we're building a network of river guardians for cleaner waterways.
-              </Text>
-              <TouchableOpacity className="bg-blue-600 py-3 px-4 rounded-xl self-start">
-                <Text className="text-white font-medium">Learn More</Text>
-              </TouchableOpacity>
-            </View>
-            
-            {/* Statistics Cards */}
-            <Text className="text-gray-800 text-lg font-semibold mb-4">Alarming Statistics</Text>
-            <View className="mb-8">
-              <FlatList
-                data={statistics}
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                snapToInterval={width - 80}
-                decelerationRate="fast"
-                keyExtractor={item => item.id.toString()}
-                contentContainerStyle={{ paddingRight: 20 }}
-                renderItem={({ item, index }) => (
-                  <TouchableOpacity 
-                    onPress={() => setActiveStat(index)}
-                    className={`mr-4 p-6 rounded-2xl shadow-md w-64 border-l-4 ${index === activeStat ? 'border-opacity-100' : 'border-opacity-50'}`}
-                    style={{ 
-                      backgroundColor: index === activeStat ? `${item.color}15` : 'white',
-                      borderLeftColor: item.color,
-                    }}
-                  >
-                    <View className="mb-2">
-                      <MaterialCommunityIcons name={item.icon} size={28} color={item.color} />
-                    </View>
-                    <Text className="text-4xl font-bold mb-2" style={{ color: item.color }}>
-                      {item.value}
-                    </Text>
-                    <Text className="text-gray-700 text-sm" style={{ opacity: 0.8 }}>
-                      {item.description}
-                    </Text>
-                  </TouchableOpacity>
-                )}
-              />
-            </View>
-            
-            {/* Water Quality Map Placeholder */}
-            <View className="mb-8">
-              <View className="flex-row justify-between items-center mb-4">
-                <Text className="text-gray-800 text-lg font-semibold">Water Quality Map</Text>
-                <TouchableOpacity>
-                  <Text className="text-blue-600 font-medium text-sm">View Full Map</Text>
-                </TouchableOpacity>
-              </View>
-              <View className="rounded-2xl overflow-hidden h-48 shadow-md">
-                <Image 
-                  source={{ uri: 'https://placehold.co/600x400/0284c7/FFFFFF?text=Water+Quality+Map' }} 
-                  className="w-full h-full"
-                  resizeMode="cover"
+        {/* Parallax Header */}
+    <Animated.View 
+      style={{ 
+        transform: [{ translateY: headerTranslateY }],
+        opacity: headerOpacity,
+        position: 'absolute',
+        zIndex: 10,
+        width: '100%',
+      }}
+      className="h-64 overflow-hidden"
+    >
+      <Image 
+        source={{ uri: 'https://placehold.co/600x400/0284c7/FFFFFF?text=Ocean+Water' }} 
+        className="w-full h-full absolute"
+        resizeMode="cover"
+      />
+      <View className="absolute inset-0 bg-blue-900/50 p-6 justify-end">
+        <Text className="text-white text-4xl font-bold mb-2">Save Our Waters</Text>
+        <Text className="text-blue-100 text-lg">A global initiative for cleaner oceans</Text>
+      </View>
+    </Animated.View>
+    
+    {/* <View className="flex-1 bg-white"> */}
+      <Animated.ScrollView
+        className="flex-1 pt-5"
+        onScroll={Animated.event(
+          [{ nativeEvent: { contentOffset: { y: scrollY } } }],
+          { useNativeDriver: true }
+        )}
+        scrollEventThrottle={16}
+      >
+        {/* Spacer for header */}
+        <View className="h-64" />
+      
+            {/* Main Content */}
+            <View className="bg-white rounded-t-3xl -mt-8 pt-8 px-6 pb-32 shadow-xl">
+      
+              {/* Action Items */}
+              <View className="mb-8">
+                <Text className="text-gray-800 text-lg font-semibold mb-4">Quick Actions</Text>
+                <FlatList
+                  data={actionItems}
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  keyExtractor={item => item.id.toString()}
+                  contentContainerStyle={{ paddingRight: 20 }}
+                  renderItem={({ item }) => (
+                    <TouchableOpacity
+                      className="mr-4 p-4 rounded-xl  overflow-hidden"
+                      style={{ width: width * 0.38, backgroundColor: `${item.color}10` }}
+                    >
+                      <View className="w-12 h-12 rounded-full mb-3 items-center justify-center" style={{ backgroundColor: `${item.color}25` }}>
+                        <MaterialCommunityIcons name={item.icon} size={24} color={item.color} />
+                      </View>
+                      <Text className="text-gray-800 font-semibold mb-1">{item.title}</Text>
+                      <Text className="text-gray-500 text-xs">{item.description}</Text>
+                    </TouchableOpacity>
+                  )}
                 />
-                <View className="absolute bottom-0 left-0 right-0 px-4 py-3 bg-black/30 backdrop-blur-md">
-                  <Text className="text-white font-semibold">3 Pollution Alerts Nearby</Text>
-                  <Text className="text-white/80 text-xs">Tap to view details</Text>
-                </View>
               </View>
-            </View>
-            
-            {/* Government Initiatives */}
-            <Text className="text-gray-800 text-lg font-semibold mb-4">Government Initiatives</Text>
-            <View className="space-y-4 mb-8">
-              {initiatives.map((initiative) => (
-                <TouchableOpacity 
-                  key={initiative.id}
-                  className="bg-white rounded-xl p-4 border border-gray-100 shadow-sm"
-                >
-                  <View className="flex-row items-center mb-1">
-                    <View className="w-10 h-10 rounded-lg items-center justify-center mr-3" style={{ backgroundColor: `${initiative.color}15` }}>
-                      <MaterialCommunityIcons name={initiative.icon} size={22} color={initiative.color} />
-                    </View>
-                    <View className="flex-1">
-                      <Text className="text-gray-800 font-semibold">{initiative.title}</Text>
-                      <Text className="text-gray-500 text-xs">{initiative.description}</Text>
-                    </View>
-                  </View>
-                  <View className="mt-2">
-                    <View className="flex-row justify-between mb-1">
-                      <Text className="text-xs text-gray-500">Implementation Progress</Text>
-                      <Text className="text-xs font-medium" style={{ color: initiative.color }}>{initiative.progress}%</Text>
-                    </View>
-                    {renderProgressBar(initiative.progress)}
-                  </View>
-                </TouchableOpacity>
-              ))}
-            </View>
-
-            {/* What You Can Do Section */}
-            <View className="bg-gradient-to-br from-emerald-50 to-teal-50 rounded-2xl p-6 mb-8 shadow-sm">
-              <View className="flex-row items-center mb-4">
-                <MaterialCommunityIcons name="hand-heart" size={24} color="#059669" />
-                <Text className="text-emerald-800 text-lg font-semibold ml-2">What You Can Do</Text>
-              </View>
-              
-              <View className="space-y-3 mb-5">
-                <View className="flex-row items-center">
-                  <View className="w-6 h-6 rounded-full bg-emerald-100 items-center justify-center mr-3">
-                    <MaterialCommunityIcons name="check" size={14} color="#059669" />
-                  </View>
-                  <Text className="text-gray-700">Reduce single-use plastics</Text>
-                </View>
-                <View className="flex-row items-center">
-                  <View className="w-6 h-6 rounded-full bg-emerald-100 items-center justify-center mr-3">
-                    <MaterialCommunityIcons name="check" size={14} color="#059669" />
-                  </View>
-                  <Text className="text-gray-700">Participate in beach cleanups</Text>
-                </View>
-                <View className="flex-row items-center">
-                  <View className="w-6 h-6 rounded-full bg-emerald-100 items-center justify-center mr-3">
-                    <MaterialCommunityIcons name="check" size={14} color="#059669" />
-                  </View>
-                  <Text className="text-gray-700">Conserve water at home</Text>
-                </View>
-                <View className="flex-row items-center">
-                  <View className="w-6 h-6 rounded-full bg-emerald-100 items-center justify-center mr-3">
-                    <MaterialCommunityIcons name="check" size={14} color="#059669" />
-                  </View>
-                  <Text className="text-gray-700">Support water conservation policies</Text>
-                </View>
-              </View>
-              
-              <TouchableOpacity 
-                className="bg-emerald-600 p-3 rounded-xl items-center shadow-sm"
-                onPressIn={onPressIn}
-                onPressOut={onPressOut}
-              >
-                <Animated.View style={{ transform: [{ scale: buttonScale }] }} className="flex-row items-center">
-                  <MaterialCommunityIcons name="account-group" size={20} color="white" />
-                  <Text className="text-white font-medium ml-2">Join Community Efforts</Text>
-                </Animated.View>
-              </TouchableOpacity>
-            </View>
-            
-            {/* News & Updates */}
-            <View className="mb-8">
-              <View className="flex-row justify-between items-center mb-4">
-                <Text className="text-gray-800 text-lg font-semibold">Latest News</Text>
-                <TouchableOpacity>
-                  <Text className="text-blue-600 font-medium text-sm">View All</Text>
+      
+              {/* About NadiRakshak Section */}
+              <View className="bg-gray-100 rounded-2xl p-6 mb-8">
+                <Text className="text-blue-800 text-xl font-semibold mb-4">About NadiRakshak</Text>
+                <Text className="text-gray-700 text-base mb-4">
+                  NadiRakshak is a crowdsourced river pollution reporting app that empowers citizens to report pollution incidents in real time by submitting images, GPS locations, and severity levels. The app integrates government initiatives and offers historical insights into river conditions, helping drive community action for cleaner rivers.
+                </Text>
+                <TouchableOpacity className="bg-blue-600 p-3 rounded-xl items-center">
+                  <Text className="text-white font-medium" onPress={() => router.push("screens/login")}>Report Pollution Now</Text>
                 </TouchableOpacity>
               </View>
-              {(newsData || []).map((article)=> (
-                <TouchableOpacity 
-                  key={article._id}
-                  className="bg-white rounded-xl overflow-hidden shadow-sm mb-4 border border-gray-100"
-                  onPress={() => Linking.openURL(article.url)} // Add this onPress handler
-                >
-                  <Image 
-                    source={{ uri: article.urlToImage }} 
-                    className="w-full h-40"
+      
+              {/* Statistics Cards */}
+              <Text className="text-gray-800 text-lg font-semibold mb-4">Alarming Statistics</Text>
+              <View className="mb-8">
+                <FlatList
+                  data={statistics}
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  // snapToInterval={width + 80}
+                  snapToAlignment="start"
+                  decelerationRate="normal"
+                  keyExtractor={item => item.id.toString()}
+                  contentContainerStyle={{ paddingRight: 20 }}
+                  renderItem={({ item, index }) => (
+                    <TouchableOpacity
+                      onPress={() => setActiveStat(index)}
+                      className={`mr-4 p-6 rounded-2xl  w-64 border-l-4 ${index === activeStat ? 'border-opacity-100' : 'border-opacity-50'}`}
+                      style={{
+                        backgroundColor: index === activeStat ? `${item.color}15` : 'white',
+                        borderLeftColor: item.color,
+                      }}
+                    >
+                      <View className="mb-2">
+                        <MaterialCommunityIcons name={item.icon} size={28} color={item.color} />
+                      </View>
+                      <Text className="text-4xl font-bold mb-2" style={{ color: item.color }}>
+                        {item.value}
+                      </Text>
+                      <Text className="text-gray-700 text-sm" style={{ opacity: 0.8 }}>
+                        {item.description}
+                      </Text>
+                    </TouchableOpacity>
+                  )}
+                />
+              </View>
+      
+              {/* Water Quality Map Placeholder */}
+              <View className="mb-8">
+                <View className="flex-row justify-between items-center mb-4">
+                  <Text className="text-gray-800 text-lg font-semibold">Water Quality Map</Text>
+                  <TouchableOpacity>
+                    <Text className="text-blue-600 font-medium text-sm">View Full Map</Text>
+                  </TouchableOpacity>
+                </View>
+                <View className="rounded-2xl overflow-hidden h-48 ring">
+                  <Image
+                    source={{ uri: 'https://placehold.co/600x400/0284c7/FFFFFF?text=Water+Quality+Map' }}
+                    className="w-full h-full"
                     resizeMode="cover"
                   />
-                  <View className="flex-row items-center px-4 py-2">
-                    <View className="px-2 py-1 rounded-md bg-blue-100 mr-2">
-                      <Text className="text-blue-700 text-xs font-medium">{article.category}</Text>
-                    </View>
-                    <Text className="text-gray-500 text-xs mr-2">•</Text>
-                    <Text className="text-gray-500 text-xs">{new Date(article.publishedAt).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}</Text>
-                    <Text className="text-gray-500 text-xs mr-2 ml-auto">{}</Text>
-                    <Text className="text-gray-500 text-xs">{article.source.name}</Text>
+                  <View className="absolute bottom-0 left-0 right-0 px-4 py-3 bg-black/30 backdrop-blur-md">
+                    <Text className="text-white font-semibold">3 Pollution Alerts Nearby</Text>
+                    <Text className="text-white/80 text-xs">Tap to view details</Text>
                   </View>
-                  <View className="p-4 pt-0">
-                    <Text className="text-gray-800 font-semibold text-lg mb-1">{article.title}</Text>
-                    <Text className="text-gray-600 text-sm" numberOfLines={2}>{article.description}</Text>
-                    <View className="flex-row items-center mt-3">
-                      <Text className="text-blue-600 font-medium text-sm">Read Article</Text>
-                      <Feather name="arrow-right" size={16} color="#2563eb" style={{ marginLeft: 4 }} />
+                </View>
+              </View>
+      
+              {/* Government Initiatives */}
+              <Text className="text-gray-800 text-lg font-semibold mb-4">Government Initiatives</Text>
+              <View className="space-y-4 mb-8">
+                {initiatives.map((initiative) => (
+                  <TouchableOpacity
+                    key={initiative.id}
+                    className="bg-white rounded-xl p-4 border border-gray-100 shadow-sm"
+                  >
+                    <View className="flex-row items-center mb-1">
+                      <View className="w-10 h-10 rounded-lg items-center justify-center mr-3" style={{ backgroundColor: `${initiative.color}15` }}>
+                        <MaterialCommunityIcons name={initiative.icon} size={22} color={initiative.color} />
+                      </View>
+                      <View className="flex-1">
+                        <Text className="text-gray-800 font-semibold">{initiative.title}</Text>
+                        <Text className="text-gray-500 text-xs">{initiative.description}</Text>
+                      </View>
                     </View>
+                    <View className="mt-2">
+                      <View className="flex-row justify-between mb-1">
+                        <Text className="text-xs text-gray-500">Implementation Progress</Text>
+                        <Text className="text-xs font-medium" style={{ color: initiative.color }}>{initiative.progress}%</Text>
+                      </View>
+                      {renderProgressBar(initiative.progress)}
+                    </View>
+                  </TouchableOpacity>
+                ))}
+              </View>
+              {/* What You Can Do Section */}
+              <View className="bg-gradient-to-br from-emerald-100 to-teal-100 rounded-2xl p-6 mb-8 ring">
+                <View className="flex-row items-center mb-4">
+                  <MaterialCommunityIcons name="hand-heart" size={24} color="#059669" />
+                  <Text className="text-emerald-800 text-lg font-semibold ml-2">What You Can Do</Text>
+                </View>
+      
+                <View className="space-y-3 mb-5">
+                  <View className="flex-row items-center">
+                    <View className="w-6 h-6 rounded-full bg-emerald-100 items-center justify-center mr-3">
+                      <MaterialCommunityIcons name="check" size={14} color="#059669" />
+                    </View>
+                    <Text className="text-gray-700">Reduce single-use plastics</Text>
                   </View>
+                  <View className="flex-row items-center">
+                    <View className="w-6 h-6 rounded-full bg-emerald-100 items-center justify-center mr-3">
+                      <MaterialCommunityIcons name="check" size={14} color="#059669" />
+                    </View>
+                    <Text className="text-gray-700">Participate in beach cleanups</Text>
+                  </View>
+                  <View className="flex-row items-center">
+                    <View className="w-6 h-6 rounded-full bg-emerald-100 items-center justify-center mr-3">
+                      <MaterialCommunityIcons name="check" size={14} color="#059669" />
+                    </View>
+                    <Text className="text-gray-700">Conserve water at home</Text>
+                  </View>
+                  <View className="flex-row items-center">
+                    <View className="w-6 h-6 rounded-full bg-emerald-100 items-center justify-center mr-3">
+                      <MaterialCommunityIcons name="check" size={14} color="#059669" />
+                    </View>
+                    <Text className="text-gray-700">Support water conservation policies</Text>
+                  </View>
+                </View>
+      
+                <TouchableOpacity
+                  className="bg-emerald-600 p-3 rounded-xl items-center shadow-sm"
+                  onPressIn={onPressIn}
+                  onPressOut={onPressOut}
+                >
+                  <Animated.View style={{ transform: [{ scale: buttonScale }] }} className="flex-row items-center">
+                    <MaterialCommunityIcons name="account-group" size={20} color="white" />
+                    <Text className="text-white font-medium ml-2">Join Community Efforts</Text>
+                  </Animated.View>
                 </TouchableOpacity>
-              ))}
-            </View>
-            
-            {/* Impact Stats */}
-            <View className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl p-6 mb-8 shadow-md">
-              <Text className="text-white text-lg font-semibold mb-4">Your Impact</Text>
-              <View className="flex-row justify-between">
-                <View className="items-center">
-                  <Text className="text-white text-3xl font-bold">12</Text>
-                  <Text className="text-blue-100 text-xs mt-1">Reports Filed</Text>
+              </View>
+      
+              {/* News & Updates */}
+              <View className="mb-8">
+                <View className="flex-row justify-between items-center mb-4">
+                  <Text className="text-gray-800 text-lg font-semibold">Latest News</Text>
+                  <TouchableOpacity>
+                    <Text className="text-blue-600 font-medium text-sm">View All</Text>
+                  </TouchableOpacity>
                 </View>
-                <View className="items-center">
-                  <Text className="text-white text-3xl font-bold">4</Text>
-                  <Text className="text-blue-100 text-xs mt-1">Cleanups Joined</Text>
-                </View>
-                <View className="items-center">
-                  <Text className="text-white text-3xl font-bold">87</Text>
-                  <Text className="text-blue-100 text-xs mt-1">Impact Score</Text>
+                {(newsData || []).map((article)=> (
+                  <TouchableOpacity
+                    key={article._id}
+                    className="bg-white rounded-xl overflow-hidden shadow-sm mb-4 border border-gray-100"
+                    onPress={() => Linking.openURL(article.url)} // Add this onPress handler
+                  >
+                    <Image
+                      source={{ uri: article.urlToImage }}
+                      className="w-full h-40"
+                      resizeMode="cover"
+                    />
+                    <View className="flex-row items-center px-4 py-2">
+                      <View className="px-2 py-1 rounded-md bg-blue-100 mr-2">
+                        <Text className="text-blue-700 text-xs font-medium">{article.category}</Text>
+                      </View>
+                      <Text className="text-gray-500 text-xs mr-2">•</Text>
+                      <Text className="text-gray-500 text-xs">{new Date(article.publishedAt).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}</Text>
+                      <Text className="text-gray-500 text-xs mr-2 ml-auto">{}</Text>
+                      <Text className="text-gray-500 text-xs">{article.source.name}</Text>
+                    </View>
+                    <View className="p-4 pt-0">
+                      <Text className="text-gray-800 font-semibold text-lg mb-1">{article.title}</Text>
+                      <Text className="text-gray-600 text-sm" numberOfLines={2}>{article.description}</Text>
+                      <View className="flex-row items-center mt-3">
+                        <Text className="text-blue-600 font-medium text-sm">Read Article</Text>
+                        <Feather name="arrow-right" size={16} color="#2563eb" style={{ marginLeft: 4 }} />
+                      </View>
+                    </View>
+                  </TouchableOpacity>
+                ))}
+              </View>
+      
+              {/* Impact Stats */}
+              <View className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl p-6 mb-8 shadow-md">
+                <Text className="text-white text-lg font-semibold mb-4">Your Impact</Text>
+                <View className="flex-row justify-between">
+                  <View className="items-center">
+                    <Text className="text-white text-3xl font-bold">12</Text>
+                    <Text className="text-blue-100 text-xs mt-1">Reports Filed</Text>
+                  </View>
+                  <View className="items-center">
+                    <Text className="text-white text-3xl font-bold">4</Text>
+                    <Text className="text-blue-100 text-xs mt-1">Cleanups Joined</Text>
+                  </View>
+                  <View className="items-center">
+                    <Text className="text-white text-3xl font-bold">87</Text>
+                    <Text className="text-blue-100 text-xs mt-1">Impact Score</Text>
+                  </View>
                 </View>
               </View>
             </View>
-          </View>
-        </Animated.ScrollView>
+          </Animated.ScrollView>
+    {/* </View> */}
         <ToastComponent />
       </SafeAreaView>
     );

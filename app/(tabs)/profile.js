@@ -14,6 +14,7 @@ import * as SecureStore from "expo-secure-store";
 import { BackendUrl } from "../../secrets";
 import { MaterialIcons } from "@expo/vector-icons";
 import ToastComponent, { showToast } from "../components/Toast.js";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function ProfileScreen() {
   const router = useRouter();
@@ -140,8 +141,8 @@ if (isAuthenticated === null || isAuthenticated === false) {
   }
 
   return (
-    <View className="flex-1 bg-gray-100">
-      <ScrollView className="px-4 py-6">
+    <SafeAreaView className="flex-1 bg-gray-100">
+      <ScrollView className="flex-1 px-4 py-6">
         {/* Profile Card */}
         <View className="bg-white p-6 rounded-xl shadow-md relative items-center">
           <MaterialIcons name="account-circle" size={80} color="#3b82f6" />
@@ -293,7 +294,7 @@ if (isAuthenticated === null || isAuthenticated === false) {
         </Modal>
       </ScrollView>
       <ToastComponent />
-    </View>
+    </SafeAreaView>
   );
 }
 
