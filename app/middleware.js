@@ -2,6 +2,7 @@ import { useSegments, useRouter } from "expo-router";
 import { useEffect } from "react";
 import * as SecureStore from "expo-secure-store";
 import { BackendUrl } from "@/secrets";
+import ToastComponent, {showToast} from "./components/Toast";
 
 export default function AuthMiddleware() {
   const segments = useSegments();
@@ -25,25 +26,28 @@ export default function AuthMiddleware() {
 
         if (!refreshToken) {
           console.log("No Refresh Token. Redirecting to Login.");
+          showToast("error","Error","Session Expired");
           return router.replace("/screens/login");
         }
-
+        
         const refreshResult = await refreshAccessToken(refreshToken);
         console.log("Refresh Result:", refreshResult);
-
+        
         if (refreshResult.success) {
           await SecureStore.setItemAsync("accessToken", refreshResult.accessToken);
 
           const retryProfileResult = await fetchUserProfile(refreshResult.accessToken);
           console.log("Retry Profile Fetch Result:", retryProfileResult);
-
+          
           if (retryProfileResult.success) return;
         }
-
+        
         console.log("Token Refresh Failed. Redirecting to Login.");
+        showToast("error","Error","Session Expired");
         router.replace("/screens/login");
       } catch (error) {
         console.error("Auth check failed:", error);
+        showToast("error","Error","Session Expired");
         router.replace("/screens/login");
       }
     };
@@ -54,7 +58,7 @@ export default function AuthMiddleware() {
   // Helper function to fetch user profile
   const fetchUserProfile = async (token) => {
     try {
-      const response = await fetch(`${{BackendUrl}}auth/profile`, {
+      const response = await fetch(`${BackendUrl}/auth/profile`, {
         method: "GET",
         headers: {
           "Authorization": `Bearer ${token}`,
@@ -82,7 +86,7 @@ export default function AuthMiddleware() {
   // Helper function to refresh the access token
   const refreshAccessToken = async (refreshToken) => {
     try {
-      const response = await fetch(`${{BackendUrl}}auth/refresh-token`, {
+      const response = await fetch(`${BackendUrl}/auth/refresh-token`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
