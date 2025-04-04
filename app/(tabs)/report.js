@@ -51,7 +51,7 @@ export default function ReportsScreen() {
         return;
       }
 
-      const response = await fetch(`${BackendUrl}/reports/myreports`, {
+      const response = await fetch(`${BackendUrl}/reports/my-reports`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
