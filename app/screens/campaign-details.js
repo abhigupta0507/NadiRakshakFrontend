@@ -290,7 +290,7 @@ const CampaignDetails = ({ route }) => {
           />
           
           {/* Header overlay for text legibility */}
-          <View className="absolute bottom-0 left-0 right-0 h-32 bg-black opacity-50" />
+          <View className="absolute bottom-0 left-0 right-0 h-32 bg-black opacity-30" />
           
           {/* Title on image */}
           <View className="absolute bottom-4 left-4 right-4">
