@@ -6,7 +6,7 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 export default function RootLayout() {
   return (
     <SafeAreaProvider>
-      <AuthMiddleware />
+      {/* <AuthMiddleware /> */}
       <Stack screenOptions={{ headerShown: false }}></Stack>
     </SafeAreaProvider>
   );

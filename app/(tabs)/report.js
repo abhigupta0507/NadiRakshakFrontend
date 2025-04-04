@@ -230,7 +230,11 @@ export default function ReportsScreen() {
     <SafeAreaView className="flex-1 bg-gray-100">
       {/* Header with Plus Button */}
       <View className="relative">
-        <Header title={"Reports"} subtitle={"Be the change—save water, sustain life."}/>
+        <Header 
+        title={"Reports"} 
+        showButton={true}
+        onAddPress={() => router.push("/camera")}
+        subtitle={"Be the change—save water, sustain life."}/>
       </View>
 
       {/* Tab Navigation */}

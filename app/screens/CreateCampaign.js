@@ -15,14 +15,18 @@ export default function CreateCampaign() {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [location, setLocation] = useState("");
-  const [startDate, setStartDate] = useState(new Date());
-  const [endDate, setEndDate] = useState(new Date());
   const [maxParticipants, setMaxParticipants] = useState("");
   const [image, setImage] = useState(null);
   const [category, setCategory] = useState("Environment");
   const [loading, setLoading] = useState(false);
   const [showStartPicker, setShowStartPicker] = useState(false);
   const [showEndPicker, setShowEndPicker] = useState(false);
+  const today = new Date();
+  const tomorrow = new Date();
+  tomorrow.setDate(today.getDate() + 1);
+
+  const [startDate, setStartDate] = useState(today);
+  const [endDate, setEndDate] = useState(tomorrow);
 
   const handleCreateCampaign = async () => {
     if (!title || !description || !location || !maxParticipants || !image) {
@@ -30,10 +34,17 @@ export default function CreateCampaign() {
       return;
     }
 
-    // if (endDate <= startDate) {
-    //   showToast("error", "Invalid Dates", "End date must be after start date.");
-    //   return;
-    // }
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Reset time for accurate comparison
+
+    const errors = [];
+    if (startDate < today) errors.push("Start date must be today or later.");
+    if (endDate <= startDate) errors.push("End date must be after the start date.");
+
+    if (errors.length > 0) {
+      showToast("error", errors.join(" "));
+      return;
+}
 
     setLoading(true);
 
@@ -126,7 +137,7 @@ export default function CreateCampaign() {
             
             {/* Title Input */}
             <View className="mb-4">
-              <Text className="text-sm font-medium text-gray-700 mb-1">Campaign Title</Text>
+              <Text className="text-sm font-medium text-gray-700 mb-1">Campaign Title <Text className="text-red-500">*</Text> </Text>
               <View className="flex-row items-center border border-gray-300 rounded-lg p-3 bg-gray-50">
                 <FileText color="#4B5563" size={18} />
                 <TextInput 
@@ -140,7 +151,7 @@ export default function CreateCampaign() {
             
             {/* Description Input - FIXED ALIGNMENT */}
             <View className="mb-4">
-              <Text className="text-sm font-medium text-gray-700 mb-1">Campaign Description</Text>
+              <Text className="text-sm font-medium text-gray-700 mb-1">Campaign Description <Text className="text-red-500">*</Text> </Text>
               <View className="border border-gray-300 rounded-lg p-3 bg-gray-50">
                 <View className="flex-row">
                   <AlignLeft color="#4B5563" size={18} />
@@ -162,7 +173,7 @@ export default function CreateCampaign() {
             
             {/* Location Input */}
             <View className="mb-4">
-              <Text className="text-sm font-medium text-gray-700 mb-1">Location</Text>
+              <Text className="text-sm font-medium text-gray-700 mb-1">Location  <Text className="text-red-500">*</Text> </Text>
               <View className="flex-row items-center border border-gray-300 rounded-lg p-3 bg-gray-50">
                 <MapPin color="#4B5563" size={18} />
                 <TextInput 
@@ -176,7 +187,7 @@ export default function CreateCampaign() {
             
             {/* Max Participants Input */}
             <View className="mb-4">
-              <Text className="text-sm font-medium text-gray-700 mb-1">Maximum Participants</Text>
+              <Text className="text-sm font-medium text-gray-700 mb-1">Maximum Participants <Text className="text-red-500">*</Text> </Text>
               <View className="flex-row items-center border border-gray-300 rounded-lg p-3 bg-gray-50">
                 <Users color="#4B5563" size={18} />
                 <TextInput 
@@ -191,7 +202,7 @@ export default function CreateCampaign() {
             
             {/* Category Dropdown */}
             <View className="mb-4">
-              <Text className="text-sm font-medium text-gray-700 mb-1">Category</Text>
+              <Text className="text-sm font-medium text-gray-700 mb-1">Category <Text className="text-red-500">*</Text> </Text>
               <View className="border border-gray-300 rounded-lg overflow-hidden bg-gray-50">
                 <View className="flex-row items-center px-3">
                   <Tag color="#4B5563" size={18} />
@@ -215,7 +226,7 @@ export default function CreateCampaign() {
 
           {/* Date Section */}
           <View className="bg-white p-5 rounded-xl shadow-sm mb-6">
-            <Text className="text-lg font-semibold mb-4 text-gray-800">Schedule</Text>
+            <Text className="text-lg font-semibold mb-4 text-gray-800">Schedule <Text className="text-red-500">*</Text> </Text>
             
             {/* Start Date Picker */}
             <View className="mb-4">
@@ -234,8 +245,13 @@ export default function CreateCampaign() {
                   display="default" 
                   onChange={(event, selectedDate) => {
                     setShowStartPicker(false);
-                    if (selectedDate) setStartDate(selectedDate);
-                  }} 
+                    if (selectedDate) {
+                      setStartDate(selectedDate);
+                      const nextDay = new Date(selectedDate);
+                      nextDay.setDate(nextDay.getDate() + 1);
+                      setEndDate(nextDay); // auto update end date
+                    }
+                  }}
                 />
               )}
             </View>
@@ -266,7 +282,7 @@ export default function CreateCampaign() {
 
           {/* Media Section */}
           <View className="bg-white p-5 rounded-xl shadow-sm mb-6">
-            <Text className="text-lg font-semibold mb-4 text-gray-800">Campaign Media</Text>
+            <Text className="text-lg font-semibold mb-4 text-gray-800">Campaign Media <Text className="text-red-500">*</Text> </Text>
             
             {/* Image Preview */}
             {image && (

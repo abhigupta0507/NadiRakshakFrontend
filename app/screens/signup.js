@@ -67,11 +67,7 @@ export default function SignupScreen() {
         "OTP Sent",
         "Please check your email to verify your account."
       );
-
-      // Navigate to OTP verification screen after a short delay
-      setTimeout(() => {
-        router.push({ pathname: "/screens/verify-otp", params: { email } });
-      }, 1500);
+      router.push({ pathname: "/screens/verify-otp", params: { email } });
     } catch (error) {
       console.error("Signup error:", error.message);
       showToast("error", "Signup Failed", error.message); //  Show error toast
@@ -227,22 +223,6 @@ export default function SignupScreen() {
               </View>
             </View>
 
-            {/* Role Picker */}
-            <View className="mb-4">
-              <Text className="text-sm font-medium text-gray-700 mb-1">
-                Role
-              </Text>
-              <View className="border border-gray-300 rounded-lg bg-gray-50 overflow-hidden">
-                <Picker
-                  selectedValue={role}
-                  onValueChange={(value) => setRole(value)}
-                  style={{ color: "#4B5563" }}
-                >
-                  <Picker.Item label="Public" value="Public" />
-                  <Picker.Item label="Inspection" value="Inspection" />
-                </Picker>
-              </View>
-            </View>
 
             {/* Signup Button */}
             <TouchableOpacity

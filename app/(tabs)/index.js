@@ -205,7 +205,7 @@ const HomeScreen = () => {
       description: "Check water quality in your area",
       icon: "water-check",
       color: "#8b5cf6",
-      to: "/screens/login",
+      to: "/screens/rivers",
     },
     {
       id: 4,
