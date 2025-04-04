@@ -281,164 +281,210 @@ export default function EditDraftScreen() {
   const longitude = draft.location?.coordinates ? draft.location.coordinates[0] : 0;
 
   return (
-    <SafeAreaView flex-1 className="bg-white" >
-    {/* <View className="flex-1 bg-white"> */}
-        
-          <ScrollView className="flex-1 bg-white">
-            {/* Header with "DRAFT" label */}
-            <View className="w-full h-64 bg-gray-300 relative">
-              <Image
-                source={{ uri: draft.imageUrl }}
-                className="w-full h-full"
-                resizeMode="cover"
-              />
-              <View className="absolute top-0 right-0 bg-blue-600 px-4 py-2 rounded-bl-lg">
-                <Text className="text-white font-bold">DRAFT</Text>
-              </View>
+    <SafeAreaView className="bg-white flex-1">
+      {/* <View className="flex-1 bg-white"> */}
+
+      <ScrollView className="flex-1 bg-white">
+        {/* Header with "DRAFT" label */}
+        <View className="w-full h-64 bg-gray-300 relative">
+          <Image
+            source={{ uri: draft.imageUrl }}
+            className="w-full h-full"
+            resizeMode="cover"
+          />
+          <View className="absolute top-0 right-0 bg-blue-600 px-4 py-2 rounded-bl-lg">
+            <Text className="text-white font-bold">DRAFT</Text>
+          </View>
+        </View>
+        {/* Main Content */}
+        <View className="p-4">
+          {/* Title and Date */}
+          <View className="mb-3">
+            <Text className="text-2xl font-bold text-gray-900">
+              Edit Draft Report
+            </Text>
+            <View className="flex-row items-center mt-1">
+              <Ionicons name="time-outline" size={16} color="#6B7280" />
+              <Text className="text-gray-500 ml-1">
+                Created on {formattedDate}
+              </Text>
             </View>
-            {/* Main Content */}
-            <View className="p-4">
-              {/* Title and Date */}
-              <View className="mb-3">
-                <Text className="text-2xl font-bold text-gray-900">
-                  Edit Draft Report
+          </View>
+          {/* Description */}
+          <View className="mb-6">
+            <Text className="text-lg font-semibold text-gray-800 mb-2">
+              Description
+            </Text>
+            <TextInput
+              className="bg-blue-50 p-3 rounded-lg text-gray-700 border border-blue-200"
+              value={description}
+              onChangeText={setDescription}
+              multiline={true}
+              numberOfLines={4}
+              placeholder="Describe the pollution issue..."
+              placeholderTextColor="#9CA3AF"
+            />
+          </View>
+          {/* Severity */}
+          <View className="mb-6">
+            <Text className="text-lg font-semibold text-gray-800 mb-2">
+              Severity
+            </Text>
+            <View className="flex-row justify-between">
+              <TouchableOpacity
+                onPress={() => setSeverity("Low")}
+                className={`flex-1 mr-2 py-3 rounded-lg items-center ${
+                  severity === "Low" ? "bg-green-600" : "bg-gray-100"
+                }`}
+              >
+                <Text
+                  className={`font-semibold ${
+                    severity === "Low" ? "text-white" : "text-black"
+                  }`}
+                >
+                  Low
                 </Text>
-                <View className="flex-row items-center mt-1">
-                  <Ionicons name="time-outline" size={16} color="#6B7280" />
-                  <Text className="text-gray-500 ml-1">Created on {formattedDate}</Text>
-                </View>
-              </View>
-              {/* Description */}
-              <View className="mb-6">
-                <Text className="text-lg font-semibold text-gray-800 mb-2">Description</Text>
-                <TextInput
-                  className="bg-blue-50 p-3 rounded-lg text-gray-700 border border-blue-200"
-                  value={description}
-                  onChangeText={setDescription}
-                  multiline={true}
-                  numberOfLines={4}
-                  placeholder="Describe the pollution issue..."
-                  placeholderTextColor="#9CA3AF"
-                />
-              </View>
-              {/* Severity */}
-              <View className="mb-6">
-                <Text className="text-lg font-semibold text-gray-800 mb-2">Severity</Text>
-                <View className="flex-row justify-between">
-                  <TouchableOpacity
-                    onPress={() => setSeverity("Low")}
-                    className={`flex-1 mr-2 py-3 rounded-lg items-center ${severity === "Low" ? "bg-green-600" : "bg-gray-100"}`}
-                  >
-                    <Text className={`font-semibold ${severity === "Low" ? "text-white" : "text-black"}`}>Low</Text>
-                  </TouchableOpacity>
-          
-                  <TouchableOpacity
-                    onPress={() => setSeverity("Medium")}
-                    className={`flex-1 mx-1 py-3 rounded-lg items-center ${severity === "Medium" ? "bg-yellow-600" : "bg-gray-100"}`}
-                  >
-                    <Text className={`font-semibold ${severity === "Medium" ? "text-white" : "text-black"}`}>Medium</Text>
-                  </TouchableOpacity>
-          
-                  <TouchableOpacity
-                    onPress={() => setSeverity("High")}
-                    className={`flex-1 ml-2 py-3 rounded-lg items-center ${severity === "High" ? "bg-orange-600" : "bg-gray-100"}`}
-                  >
-                    <Text className={`font-semibold ${severity === "High" ? "text-white" : "text-black"}`}>High</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    onPress={() => setSeverity("Critical")}
-                    className={`flex-1 ml-2 py-3 rounded-lg items-center ${severity === "Critical" ? "bg-red-600" : "bg-gray-100"}`}
-                  >
-                    <Text className={`font-semibold ${severity === "Critical" ? "text-white" : "text-black"}`}>Critical</Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
-              {/* Suggested Severity */}
-              <View className="mb-6">
-                <Text className="text-lg font-semibold text-gray-800 mb-2">Suggested Severity</Text>
-                <View className="bg-blue-50 p-3 rounded-lg">
-                  <Text className="text-gray-700">{draft.severitySuggestion || "Medium"}</Text>
-                </View>
-                <Text className="text-xs text-gray-500 mt-1">
-                  This is the AI-suggested severity based on the image analysis
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                onPress={() => setSeverity("Medium")}
+                className={`flex-1 mx-1 py-3 rounded-lg items-center ${
+                  severity === "Medium" ? "bg-yellow-600" : "bg-gray-100"
+                }`}
+              >
+                <Text
+                  className={`font-semibold ${
+                    severity === "Medium" ? "text-white" : "text-black"
+                  }`}
+                >
+                  Medium
                 </Text>
-              </View>
-              {/* Location */}
-              <View className="mb-6">
-                <Text className="text-lg font-semibold text-gray-800 mb-2">Location</Text>
-          
-                {draft.location?.coordinates ? (
-                  <View className="border-2 border-blue-200 rounded-lg overflow-hidden h-48">
-                    <MapView
-                      style={StyleSheet.absoluteFillObject}
-                      initialRegion={{
-                        latitude,
-                        longitude,
-                        latitudeDelta: 0.01,
-                        longitudeDelta: 0.01,
-                      }}
-                    >
-                      <Marker
-                        coordinate={{ latitude, longitude }}
-                        title="Draft Report Location"
-                        description={draft.description}
-                        pinColor="#2563eb"
-                      />
-                    </MapView>
-                  </View>
-                ) : (
-                  <View className="bg-gray-100 h-48 rounded-lg justify-center items-center">
-                    <Text className="text-gray-500">Location data not available</Text>
-                  </View>
-                )}
-          
-                {draft.location?.coordinates && (
-                  <Text className="text-gray-500 mt-2 text-center">
-                    {latitude.toFixed(6)}, {longitude.toFixed(6)}
-                  </Text>
-                )}
-              </View>
-              {/* Action Buttons */}
-              <View className="mb-10">
-                {/* Save Draft */}
-                <TouchableOpacity
-                  onPress={handleUpdateDraft}
-                  disabled={saving}
-                  className="bg-blue-600 mb-3 py-3 rounded-lg items-center shadow-md"
-                  style={{ opacity: saving ? 0.7 : 1 }}
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                onPress={() => setSeverity("High")}
+                className={`flex-1 ml-2 py-3 rounded-lg items-center ${
+                  severity === "High" ? "bg-orange-600" : "bg-gray-100"
+                }`}
+              >
+                <Text
+                  className={`font-semibold ${
+                    severity === "High" ? "text-white" : "text-black"
+                  }`}
                 >
-                  {saving ? (
-                    <ActivityIndicator color="white" size="small" />
-                  ) : (
-                    <Text className="text-white font-semibold">Save Changes</Text>
-                  )}
-                </TouchableOpacity>
-          
-                {/* Submit Report */}
-                <TouchableOpacity
-                  onPress={handleSubmitReport}
-                  disabled={saving}
-                  className="bg-green-600 mb-3 py-3 rounded-lg items-center shadow-md"
-                  style={{ opacity: saving ? 0.7 : 1 }}
+                  High
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => setSeverity("Critical")}
+                className={`flex-1 ml-2 py-3 rounded-lg items-center ${
+                  severity === "Critical" ? "bg-red-600" : "bg-gray-100"
+                }`}
+              >
+                <Text
+                  className={`font-semibold ${
+                    severity === "Critical" ? "text-white" : "text-black"
+                  }`}
                 >
-                  <Text className="text-white font-semibold">Submit Report</Text>
-                </TouchableOpacity>
-          
-                {/* Delete Draft */}
-                <TouchableOpacity
-                  onPress={handleDeleteDraft}
-                  disabled={saving}
-                  className="bg-white py-3 rounded-lg items-center border-2 border-red-500"
-                  style={{ opacity: saving ? 0.7 : 1 }}
-                >
-                  <Text className="text-red-500 font-semibold">Delete Draft</Text>
-                </TouchableOpacity>
-              </View>
+                  Critical
+                </Text>
+              </TouchableOpacity>
             </View>
-          </ScrollView>
-        
-        <ToastComponent />
-    {/* </View> */}
+          </View>
+          {/* Suggested Severity */}
+          <View className="mb-6">
+            <Text className="text-lg font-semibold text-gray-800 mb-2">
+              Suggested Severity
+            </Text>
+            <View className="bg-blue-50 p-3 rounded-lg">
+              <Text className="text-gray-700">
+                {draft.severitySuggestion || "Medium"}
+              </Text>
+            </View>
+            <Text className="text-xs text-gray-500 mt-1">
+              This is the AI-suggested severity based on the image analysis
+            </Text>
+          </View>
+          {/* Location */}
+          <View className="mb-6">
+            <Text className="text-lg font-semibold text-gray-800 mb-2">
+              Location
+            </Text>
+
+            {draft.location?.coordinates ? (
+              <View className="border-2 border-blue-200 rounded-lg overflow-hidden h-48">
+                <MapView
+                  style={StyleSheet.absoluteFillObject}
+                  initialRegion={{
+                    latitude,
+                    longitude,
+                    latitudeDelta: 0.01,
+                    longitudeDelta: 0.01,
+                  }}
+                >
+                  <Marker
+                    coordinate={{ latitude, longitude }}
+                    title="Draft Report Location"
+                    description={draft.description}
+                    pinColor="#2563eb"
+                  />
+                </MapView>
+              </View>
+            ) : (
+              <View className="bg-gray-100 h-48 rounded-lg justify-center items-center">
+                <Text className="text-gray-500">
+                  Location data not available
+                </Text>
+              </View>
+            )}
+
+            {draft.location?.coordinates && (
+              <Text className="text-gray-500 mt-2 text-center">
+                {latitude.toFixed(6)}, {longitude.toFixed(6)}
+              </Text>
+            )}
+          </View>
+          {/* Action Buttons */}
+          <View className="mb-10">
+            {/* Save Draft */}
+            <TouchableOpacity
+              onPress={handleUpdateDraft}
+              disabled={saving}
+              className="bg-blue-600 mb-3 py-3 rounded-lg items-center shadow-md"
+              style={{ opacity: saving ? 0.7 : 1 }}
+            >
+              {saving ? (
+                <ActivityIndicator color="white" size="small" />
+              ) : (
+                <Text className="text-white font-semibold">Save Changes</Text>
+              )}
+            </TouchableOpacity>
+
+            {/* Submit Report */}
+            <TouchableOpacity
+              onPress={handleSubmitReport}
+              disabled={saving}
+              className="bg-green-600 mb-3 py-3 rounded-lg items-center shadow-md"
+              style={{ opacity: saving ? 0.7 : 1 }}
+            >
+              <Text className="text-white font-semibold">Submit Report</Text>
+            </TouchableOpacity>
+
+            {/* Delete Draft */}
+            <TouchableOpacity
+              onPress={handleDeleteDraft}
+              disabled={saving}
+              className="bg-white py-3 rounded-lg items-center border-2 border-red-500"
+              style={{ opacity: saving ? 0.7 : 1 }}
+            >
+              <Text className="text-red-500 font-semibold">Delete Draft</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </ScrollView>
+
+      <ToastComponent />
+      {/* </View> */}
     </SafeAreaView>
   );
 }
