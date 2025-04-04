@@ -7,6 +7,8 @@ import Header from "../components/Header";
 import ReportCard from "../components/ReportCard";
 import { showToast } from "../components/Toast";
 import { BackendUrl } from "../../secrets";
+import { SafeAreaView } from "react-native-safe-area-context";
+
 
 export default function ReportsScreen() {
   const router = useRouter();
@@ -225,7 +227,7 @@ export default function ReportsScreen() {
   };
 
   return (
-    <View className="flex-1 bg-gray-100">
+    <SafeAreaView className="flex-1 bg-gray-100">
       {/* Header with Plus Button */}
       <View className="relative">
         <Header title={"Reports"} subtitle={"Be the change—save water, sustain life."}/>
@@ -240,6 +242,6 @@ export default function ReportsScreen() {
       <View className="flex-1">
         {renderContent()}
       </View>
-    </View>
+    </SafeAreaView>
   );
 }

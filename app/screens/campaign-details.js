@@ -7,12 +7,12 @@ import {
   ScrollView, 
   ActivityIndicator, 
   StatusBar,
-  SafeAreaView,
   Alert
 } from "react-native";
 import ToastComponent, { showToast } from "../components/Toast";
 import * as SecureStore from "expo-secure-store";
 import { useFocusEffect, useGlobalSearchParams, useRouter } from "expo-router";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const BackendUrl = "https://nadirakshak-backend.onrender.com/api/v1";
 
