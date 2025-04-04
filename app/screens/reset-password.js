@@ -54,7 +54,7 @@ export default function ResetPasswordScreen() {
 
       if (response.ok) {
         showToast("success", "Success", "Password reset successfully! Redirecting...");
-        setTimeout(() => router.push("/login"), 1500);
+        setTimeout(() => router.push("/screens/login"), 1500);
       } else {
         showToast("error", "Error", data.message || "Failed to reset password.");
       }
