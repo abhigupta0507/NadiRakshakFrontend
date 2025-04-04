@@ -176,7 +176,7 @@ export default function ReportsScreen() {
         <View className="flex-1 justify-center items-center px-4">
           <Text className="text-gray-700 text-center mb-4">{emptyMessage}</Text>
           <TouchableOpacity 
-            onPress={() => router.push("../camera")}
+            onPress={() => router.push("/camera")}
             className="bg-blue-600 px-4 py-2 rounded-lg"
           >
             <Text className="text-white font-medium">{createButtonText}</Text>
