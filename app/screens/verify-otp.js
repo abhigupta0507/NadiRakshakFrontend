@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import {
   View,
@@ -6,35 +6,39 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  TouchableOpacity,
 } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { useRouter, useGlobalSearchParams } from "expo-router";
 import * as SecureStore from "expo-secure-store";
-import OTPInput from "../components/Otp.js"; // Reusable OTP component
-import { PrimaryButton } from "../components/Button"; // Reusable button component
-
+import OTPInput from "../components/Otp.js";
+import { PrimaryButton } from "../components/Button";
 import { BackendUrl } from "../../secrets.js";
-import ToastComponent, { showToast } from "../components/Toast.js"; //  Import Toast
+import ToastComponent, { showToast } from "../components/Toast.js";
 
 export default function VerifyOTP() {
   const [otp, setOtp] = useState("");
+  const [timer, setTimer] = useState(30);
+  const [resendEnabled, setResendEnabled] = useState(false);
+  const [resendClicked, setResendClicked] = useState(false);
   const router = useRouter();
   const params = useGlobalSearchParams();
   const email = params.email;
 
-  if (!email) {
-    return (
-      <SafeAreaView className="flex-1 bg-white">
-        <View className="flex-1 justify-center items-center">
-          <Text className="text-red-600">Email is missing. Please go back and try again.</Text>
-        </View>
-      </SafeAreaView>
-    );
-  }
+  useEffect(() => {
+    if (!resendEnabled && timer > 0) {
+      const interval = setInterval(() => {
+        setTimer((prev) => prev - 1);
+      }, 1000);
+      return () => clearInterval(interval);
+    } else if (timer <= 0) {
+      setResendEnabled(true);
+    }
+  }, [timer, resendEnabled]);
 
   const handleVerifyOTP = async () => {
     if (otp.length !== 6) {
-      showToast("error", "Invalid OTP", "OTP must be 6 digits long."); //  Show error toast
+      showToast("error", "Invalid OTP", "OTP must be 6 digits long.");
       return;
     }
 
@@ -52,16 +56,50 @@ export default function VerifyOTP() {
 
       if (response.ok) {
         await SecureStore.setItemAsync("accessToken", data.accessToken);
-        showToast("success", "OTP Verified", "Redirecting to home..."); //  Show success toast
-
-        setTimeout(() => router.push("/home"), 1500); // Delay to show toast
+        showToast("success", "OTP Verified", "Redirecting to home...");
+        setTimeout(() => router.push("/index"), 1500);
       } else {
-        showToast("error", "OTP Error", data.message || "Invalid OTP, try again."); //  Show error toast
+        showToast("error", "OTP Error", data.message || "Invalid OTP, try again.");
       }
     } catch (error) {
-      showToast("error", "Error", "Something went wrong, please try again."); //  Show error toast
+      showToast("error", "Error", "Something went wrong, please try again.");
     }
   };
+
+  const handleResendOTP = async () => {
+    try {
+      const response = await fetch(`${BackendUrl}/auth/resend-otp`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({ email, type: "signup" }), // or "reset" if it's reset
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        showToast("success", "OTP Resent", "A new OTP has been sent to your email.");
+        setResendClicked(true);
+        setResendEnabled(false); // Optional safety
+      } else {
+        showToast("error", "Resend Failed", data.message || "Could not resend OTP.");
+      }
+    } catch (err) {
+      showToast("error", "Error", "Something went wrong while resending OTP.");
+    }
+  };
+
+  if (!email) {
+    return (
+      <SafeAreaView className="flex-1 bg-white">
+        <View className="flex-1 justify-center items-center">
+          <Text className="text-red-600">Email is missing. Please go back and try again.</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView className="flex-1 bg-white">
@@ -86,10 +124,51 @@ export default function VerifyOTP() {
           <OTPInput value={otp} setValue={setOtp} />
 
           <PrimaryButton title="Verify OTP" onPress={handleVerifyOTP} className="mt-6" />
+
+          <View className="mt-4 items-center">
+          {resendClicked ? (
+            <Text className="text-gray-400 font-semibold mt-2">Resend disabled</Text>
+          ) : resendEnabled ? (
+            <TouchableOpacity
+              onPress={async () => {
+                setResendClicked(true); // Disable immediately on click
+                setResendEnabled(false); // Prevent display again just in case
+                try {
+                  const response = await fetch(`${BackendUrl}/auth/resend-otp`, {
+                    method: "POST",
+                    headers: {
+                      "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({ email, type: "signup" }), // or "reset" if applicable
+                  });
+
+                  const data = await response.json();
+
+                  if (!response.ok) {
+                    throw new Error(data.message || "Failed to resend OTP");
+                  }
+
+                  showToast("success", "OTP Resent", "Please check your email.");
+                  setResendClicked(true);
+                  setResendEnabled(false); // optional safety
+                } catch (error) {
+                  showToast("error", "Resend Failed", error.message);
+                  console.log(error);
+                }
+              }}
+            >
+              <Text className="text-blue-600 font-semibold mt-2">Resend OTP</Text>
+            </TouchableOpacity>
+          ) : (
+            <Text className="text-gray-400 font-semibold mt-2">
+              You can resend OTP in {timer}s
+            </Text>
+          )}
+        </View>
+
         </KeyboardAvoidingView>
       </ScrollView>
 
-      {/*  Toast Component */}
       <ToastComponent />
     </SafeAreaView>
   );
