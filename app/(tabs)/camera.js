@@ -6,6 +6,7 @@ import {
   ActivityIndicator,
   Image,
   StyleSheet,
+  Linking,
 } from "react-native";
 import { CameraView, useCameraPermissions } from "expo-camera";
 import { Ionicons } from "@expo/vector-icons";
@@ -99,9 +100,9 @@ export default function CameraScreen() {
       console.error("Capture Error:", error);
       showToast(
         "error",
-        "Capture Failed",
-        error.message.includes("location")
-          ? "Failed to get location. Ensure location services are enabled."
+        // "Failed",
+        error.message.includes("Location")
+          ? "Ensure location services are enabled."
           : "Failed to take picture."
       );
     } finally {
@@ -191,12 +192,26 @@ export default function CameraScreen() {
         </Text>
         <TouchableOpacity
           onPress={async () => {
-            if (cameraPermission.status !== "granted") await requestCameraPermission();
-            if (locationPermission.status !== "granted") {
-              const { status } = await Location.requestForegroundPermissionsAsync();
-              setLocationPermission({ status });
+            // Attempt to request again
+            const camPerm = cameraPermission.status !== "granted" && await requestCameraPermission();
+            const locPerm =
+              locationPermission.status !== "granted" &&
+              (await Location.requestForegroundPermissionsAsync());
+          
+            // If still not granted, open settings
+            if (
+              (camPerm && camPerm.status === "denied") ||
+              (locPerm && locPerm.status === "denied")
+            ) {
+              showToast("info", "Manual Permission Required", "Opening device settings...");
+              Linking.openSettings();
+            }
+          
+            if (locPerm?.status) {
+              setLocationPermission({ status: locPerm.status });
             }
           }}
+          
           className="bg-[#007AFF] py-2.5 px-5 rounded-lg"
         >
           <Text className="text-white text-base font-bold">Grant Permissions</Text>
