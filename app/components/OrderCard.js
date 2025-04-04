@@ -21,6 +21,8 @@ const OrderCard = ({
     });
   };
 
+  console.log(items.length);
+
   // Get status color
   const getStatusColor = (status) => {
     switch (status.toLowerCase()) {
@@ -89,14 +91,14 @@ const OrderCard = ({
       </View>
 
       <View className="border-t border-gray-100 pt-3">
-        <Text className="text-gray-600 mb-2">Items:</Text>
-        {items.map((item, index) => (
+        <Text className="text-gray-600 mb-2">Item:</Text>
+        {items.map((item) => (
           <View
-            key={index}
+            key={item}
             className="flex-row justify-between items-center mb-1"
           >
             <Text className="text-gray-800" numberOfLines={1}>
-              {item.name} {item.quantity > 1 ? `(${item.quantity})` : ""}
+              {item.itemName} {item.quantity >= 1 ? `(${item.quantity})` : ""}
             </Text>
             <View className="flex-row items-center">
               <Ionicons name="star" size={12} color="#3b82f6" />
