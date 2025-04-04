@@ -216,31 +216,34 @@
     const actionItems = [
       {
         id: 1,
-        title: 'Report Pollution',
-        description: 'Document and submit evidence of water pollution',
-        icon: 'camera',
-        color: '#0ea5e9',
+        title: "Report Pollution",
+        description: "Document and submit evidence of water pollution",
+        icon: "camera",
+        url: "./report",
+        color: "#0ea5e9",
       },
       {
         id: 2,
-        title: 'Join Cleanup',
-        description: 'Find local cleanup events near you',
-        icon: 'hand-heart',
-        color: '#10b981',
+        title: "Join Cleanup",
+        description: "Find local cleanup events near you",
+        icon: "hand-heart",
+        url: "./campaign",
+        color: "#10b981",
       },
       {
         id: 3,
-        title: 'Water Quality',
-        description: 'Check water quality in your area',
-        icon: 'water-check',
-        color: '#8b5cf6',
+        title: "Water Quality",
+        description: "Check water quality in your area",
+        icon: "water-check",
+        url: "screens/rivers",
+        color: "#8b5cf6",
       },
       {
         id: 4,
-        title: 'Contact Officials',
-        description: 'Voice your concerns to local representatives',
-        icon: 'comment-text-outline',
-        color: '#f59e0b',
+        title: "Contact Officials",
+        description: "Voice your concerns to local representatives",
+        icon: "comment-text-outline",
+        color: "#f59e0b",
       },
     ];
 
@@ -402,7 +405,8 @@
                   contentContainerStyle={{ paddingRight: 20 }}
                   renderItem={({ item }) => (
                     <TouchableOpacity
-                      className="mr-4 p-4 rounded-xl  overflow-hidden"
+                      className="mr-4 p-4 rounded-xl  overflow-hidden" 
+                      onPress={() => router.push(item.url)}
                       style={{ width: width * 0.38, backgroundColor: `${item.color}10` }}
                     >
                       <View className="w-12 h-12 rounded-full mb-3 items-center justify-center" style={{ backgroundColor: `${item.color}25` }}>
@@ -594,7 +598,12 @@
                   </TouchableOpacity>
                 ))}
               </View>
-      
+                <View>
+                  <TouchableOpacity
+            onPress={() => router.push("screens/rivers")}
+            className="bg-green-600 p-3 rounded-xl w-5/12 items-center shadow-md"
+          ><Text>Rivers</Text></TouchableOpacity>
+                </View>
               {/* Impact Stats */}
               <View className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl p-6 mb-8 shadow-md">
                 <Text className="text-white text-lg font-semibold mb-4">Your Impact</Text>
