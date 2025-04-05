@@ -10,6 +10,36 @@ export default function AuthMiddleware() {
 
   useEffect(() => {
     const checkAuth = async () => {
+      // Create an array of excluded paths
+      const excludedPaths = [
+        "/index",
+        "/campaign",
+        "/screens/forgot-password",
+        "/screens/login",
+        "/screens/reset-password",
+        "/screens/rivers",
+        "/screens/RiverScreen",
+        "/screens/RiverStationsScreen",
+        "/screens/signup",
+        "/screens/StationDetailsScreen",
+        "/screens/reset-password",
+        "/screens/verify-otp",
+        "/screens/verify-reset-otp",
+      ];
+
+      // Get the current path
+      const currentPath = "/" + segments.join("/");
+      
+      // Check if the current path is in the excluded list
+      const isExcludedPath = excludedPaths.some(path => 
+        currentPath === path || currentPath.startsWith(`${path}/`)
+      );
+      
+      // If the current path is excluded, skip authentication check
+      if (isExcludedPath) {
+        return;
+      }
+
       try {
         const accessToken = await SecureStore.getItemAsync("accessToken");
 
