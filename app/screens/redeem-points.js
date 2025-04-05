@@ -22,6 +22,7 @@ import { showToast } from "../components/Toast";
 import { BackendUrl } from "../../secrets";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+
 export default function PointsRedemptionScreen() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState("store"); // "store" or "orders"
@@ -43,6 +44,7 @@ export default function PointsRedemptionScreen() {
     country: "",
     phoneNumber: "",
   });
+  
 
   // This will be called when component mounts
   useEffect(() => {
@@ -356,9 +358,12 @@ export default function PointsRedemptionScreen() {
         <Text className="text-gray-600 text-sm">Available Points</Text>
         <Text className="text-blue-700 text-2xl font-bold">{userPoints}</Text>
       </View>
-      <View className="bg-blue-100 p-3 rounded-full">
+      <TouchableOpacity
+        className="bg-blue-100 p-3 rounded-full"
+        onPress={() => router.push("/screens/points-history")}
+      >
         <Ionicons name="gift" size={24} color="#3b82f6" />
-      </View>
+      </TouchableOpacity>
     </View>
   );
 
