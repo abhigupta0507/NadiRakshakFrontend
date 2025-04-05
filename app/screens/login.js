@@ -46,7 +46,6 @@ export default function LoginScreen() {
 
       router.replace("/");
     } catch (error) {
-      console.error("Login error:", error.message);
       showToast("error", "Login Failed", error.message);
     }
   };

@@ -154,7 +154,6 @@ export default function PointsRedemptionScreen() {
         );
       }
     } catch (error) {
-      console.error("Fetch Store Items Error:", error);
       setError("Something went wrong. Please try again.");
       showToast("error", "Error", "Something went wrong. Please try again.");
     } finally {
@@ -306,7 +305,6 @@ export default function PointsRedemptionScreen() {
         );
       }
     } catch (error) {
-      console.error("Redeem Points Error:", error);
       showToast("error", "Error", "Something went wrong. Please try again.");
     }
   };

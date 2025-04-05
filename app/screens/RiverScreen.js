@@ -53,7 +53,6 @@ export default function RiversScreen() {
         showToast("error", "Error", result.message || "Failed to fetch rivers");
       }
     } catch (error) {
-      console.error("Fetch Rivers Error:", error);
       setError("Something went wrong. Please try again.");
       showToast("error", "Error", "Something went wrong. Please try again.");
     } finally {

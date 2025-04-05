@@ -58,7 +58,6 @@ export default function ReportDetailsScreen() {
         showToast("error", "Error", result.message || "Failed to fetch report details");
       }
     } catch (error) {
-      console.error("Fetch Report Details Error:", error);
       setError("Something went wrong. Please try again.");
       showToast("error", "Error", "Something went wrong. Please try again.");
     } finally {
@@ -95,7 +94,6 @@ export default function ReportDetailsScreen() {
         showToast("error", "Error", result.message || "Failed to update report status");
       }
     } catch (error) {
-      console.error("Update Report Status Error:", error);
       showToast("error", "Error", "Something went wrong. Please try again.");
     } finally {
       setUpdating(false);

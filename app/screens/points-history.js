@@ -38,7 +38,6 @@ const PointsHistory = () => {
         }
         setAuthToken(token);
       } catch (error) {
-        console.error("Error retrieving token:", error);
         showToast(
           "error",
           "Error",
@@ -99,7 +98,6 @@ const PointsHistory = () => {
         );
       }
     } catch (error) {
-      console.error("Fetch Points History Error:", error);
       showToast("error", "Error", "Failed to connect to server");
     } finally {
       setLoading(false);

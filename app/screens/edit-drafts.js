@@ -64,7 +64,6 @@ export default function EditDraftScreen() {
         showToast("error", "Error", result.message || "Failed to fetch draft details");
       }
     } catch (error) {
-      console.error("Fetch Draft Details Error:", error);
       setError("Something went wrong. Please try again.");
       showToast("error", "Error", "Something went wrong. Please try again.");
     } finally {
@@ -109,7 +108,6 @@ export default function EditDraftScreen() {
         showToast("error", "Error", result.message || "Failed to update draft");
       }
     } catch (error) {
-      console.error("Update Draft Error:", error);
       showToast("error", "Error", error || "Something went wrong. Please try again.");
     } finally {
       setSaving(false);
@@ -177,7 +175,6 @@ export default function EditDraftScreen() {
         return;
       }
     } catch (error) {
-      console.error("Submit Report Error:", error);
       showToast("error", "Error", "Something went wrong. Please try again.");
     } finally {
       setSaving(false);
@@ -229,7 +226,6 @@ export default function EditDraftScreen() {
         showToast("error", "Error", result.message || "Failed to delete draft");
       }
     } catch (error) {
-      console.error("Delete Draft Error:", error);
       showToast("error", "Error", "Something went wrong. Please try again.");
     } finally {
       setSaving(false);

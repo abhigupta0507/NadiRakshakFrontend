@@ -79,7 +79,6 @@ export default function StationDetailsScreen() {
         );
       }
     } catch (error) {
-      console.error("Fetch Station Data Error:", error);
       setError("Something went wrong. Please try again.");
       showToast("error", "Error", "Something went wrong. Please try again.");
     } finally {

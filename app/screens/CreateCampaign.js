@@ -90,7 +90,6 @@ export default function CreateCampaign() {
         showToast("error", "Error", data.message || "Failed to create campaign.");
       }
     } catch (error) {
-      console.error("Create Campaign Error:", error);
       showToast("error", "Error", "Something went wrong. Please try again.");
     }
 
