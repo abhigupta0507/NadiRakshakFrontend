@@ -37,7 +37,6 @@ export default function AuthMiddleware() {
       
       // If the current path is excluded, skip authentication check
       if (isExcludedPath) {
-        console.log("Skipping auth check for excluded path:", currentPath);
         return;
       }
 
