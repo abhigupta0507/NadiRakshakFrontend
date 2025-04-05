@@ -21,7 +21,6 @@ const OrderCard = ({
     });
   };
 
-  console.log(items.length);
 
   // Get status color
   const getStatusColor = (status) => {

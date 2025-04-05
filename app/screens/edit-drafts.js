@@ -64,7 +64,6 @@ export default function EditDraftScreen() {
         showToast("error", "Error", result.message || "Failed to fetch draft details");
       }
     } catch (error) {
-      console.error("Fetch Draft Details Error:", error);
       setError("Something went wrong. Please try again.");
       showToast("error", "Error", "Something went wrong. Please try again.");
     } finally {
@@ -109,8 +108,7 @@ export default function EditDraftScreen() {
         showToast("error", "Error", result.message || "Failed to update draft");
       }
     } catch (error) {
-      console.error("Update Draft Error:", error);
-      showToast("error", "Error", "Something went wrong. Please try again.");
+      showToast("error", "Error", error || "Something went wrong. Please try again.");
     } finally {
       setSaving(false);
     }
@@ -152,7 +150,6 @@ export default function EditDraftScreen() {
         return;
       }
       
-      console.log("successfully3");
       const response = await fetch(`${BackendUrl}/reports/submit/${draftId}/`, {
           method: "POST",
           headers: {
@@ -165,21 +162,19 @@ export default function EditDraftScreen() {
             }),
         });
         
-        console.log("successfully4");
         const result = await response.json();
-        console.log("successfully2");
         
         if (response.ok) {
-            console.log("successfully");
             showToast("success", "Submitted", "Report submitted successfully. Waiting for Approval");
-            setTimeout(() => router.back(), 1500);
+            setTimeout(() => {
+              showToast("info", "🎉 5 Points Earned!", "You got 5 points for submitting a report! 🪙", "blue");
+            }, 2000);
+            setTimeout(() => router.back(), 3500);
         } else {
-        console.log(response.ok);
         showToast("error", "Error", result.message || "Failed to submit report");
         return;
       }
     } catch (error) {
-      console.error("Submit Report Error:", error);
       showToast("error", "Error", "Something went wrong. Please try again.");
     } finally {
       setSaving(false);
@@ -231,7 +226,6 @@ export default function EditDraftScreen() {
         showToast("error", "Error", result.message || "Failed to delete draft");
       }
     } catch (error) {
-      console.error("Delete Draft Error:", error);
       showToast("error", "Error", "Something went wrong. Please try again.");
     } finally {
       setSaving(false);

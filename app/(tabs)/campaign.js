@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from "react";
-import { ScrollView, View, TouchableOpacity, ActivityIndicator, Text } from "react-native";
+import { ScrollView, View, TouchableOpacity, ActivityIndicator, Text ,RefreshControl} from "react-native";
 import { useRouter, useFocusEffect } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import * as SecureStore from "expo-secure-store";
@@ -15,6 +15,7 @@ export default function CampaignsScreen() {
   const [campaigns, setCampaigns] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [refreshing, setRefreshing] = useState(false);
 
   // This will be called when component mounts
   useEffect(() => {
@@ -24,7 +25,6 @@ export default function CampaignsScreen() {
   // This will be called every time the screen comes into focus
   useFocusEffect(
     useCallback(() => {
-      console.log("Screen focused - reloading campaigns");
       fetchCampaigns();
       return () => {
         // Optional cleanup function
@@ -34,7 +34,9 @@ export default function CampaignsScreen() {
 
   const fetchCampaigns = async () => {
     try {
-      setLoading(true);
+      if(!refreshing){
+        setLoading(true);;
+      }
       const token = await SecureStore.getItemAsync("accessToken");
       
       if (!token) {
@@ -60,16 +62,19 @@ export default function CampaignsScreen() {
         showToast("error", "Error", result.message || "Failed to fetch campaigns");
       }
     } catch (error) {
-      console.error("Fetch Campaigns Error:", error);
       setError("Something went wrong. Please try again.");
       showToast("error", "Error", "Something went wrong. Please try again.");
     } finally {
-      setLoading(false);
+      if(!refreshing){
+        setLoading(false);
+      }
     }
   };
 
-  const handleRefresh = () => {
-    fetchCampaigns();
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    await fetchCampaigns();
+    setRefreshing(false);
   };
 
   return (
@@ -138,8 +143,14 @@ export default function CampaignsScreen() {
         <ScrollView
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{ paddingBottom: 80 }}
-          refreshing={loading}
-          onRefresh={handleRefresh}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={handleRefresh}
+              colors={["#3b82f6"]}
+              tintColor="#3b82f6"
+            />
+          }
         >
           {campaigns.map((campaign) => (
             <CampaignCard 

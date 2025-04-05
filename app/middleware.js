@@ -12,41 +12,33 @@ export default function AuthMiddleware() {
     const checkAuth = async () => {
       try {
         const accessToken = await SecureStore.getItemAsync("accessToken");
-        console.log("Access Token:", accessToken);
 
         if (accessToken) {
           const profileResult = await fetchUserProfile(accessToken);
-          console.log("Profile Fetch Result:", profileResult);
 
           if (profileResult.success) return;
         }
 
         const refreshToken = await SecureStore.getItemAsync("refreshToken");
-        console.log("Refresh Token:", refreshToken);
 
         if (!refreshToken) {
-          console.log("No Refresh Token. Redirecting to Login.");
           showToast("error","Error","Session Expired");
           return router.replace("/screens/login");
         }
         
         const refreshResult = await refreshAccessToken(refreshToken);
-        console.log("Refresh Result:", refreshResult);
         
         if (refreshResult.success) {
           await SecureStore.setItemAsync("accessToken", refreshResult.accessToken);
 
           const retryProfileResult = await fetchUserProfile(refreshResult.accessToken);
-          console.log("Retry Profile Fetch Result:", retryProfileResult);
           
           if (retryProfileResult.success) return;
         }
         
-        console.log("Token Refresh Failed. Redirecting to Login.");
         showToast("error","Error","Session Expired");
         router.replace("/screens/login");
       } catch (error) {
-        console.error("Auth check failed:", error);
         showToast("error","Error","Session Expired");
         router.replace("/screens/login");
       }

@@ -43,7 +43,6 @@ const CampaignDetails = ({ route }) => {
         }
         setAuthToken(token);
       } catch (error) {
-        console.error("Error retrieving token:", error);
         showToast(
           "error",
           "Error",
@@ -150,7 +149,6 @@ const CampaignDetails = ({ route }) => {
         );
       }
     } catch (error) {
-      console.error("Join Campaign Error:", error);
       showToast("error", "Error", "Failed to join campaign");
     } finally {
       setJoinLeaveLoading(false);
@@ -207,7 +205,6 @@ const CampaignDetails = ({ route }) => {
         );
       }
     } catch (error) {
-      console.error("Leave Campaign Error:", error);
       showToast("error", "Error", "Failed to leave campaign");
     } finally {
       setJoinLeaveLoading(false);
@@ -306,7 +303,6 @@ const CampaignDetails = ({ route }) => {
         }
       }
     } catch (error) {
-      console.error("Delete Campaign Error:", error);
       showToast("error", "Error", "Failed to connect to server");
     } finally {
       setDeleteLoading(false);
@@ -506,7 +502,6 @@ const CampaignDetails = ({ route }) => {
                   Update
                 </Text>
               </TouchableOpacity>
-              {console.log(`${campaign.status} campaign details`)}
               {/* Delete Button */}
               <TouchableOpacity
                 onPress={handleDeleteCampaign}

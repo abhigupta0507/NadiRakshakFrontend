@@ -69,7 +69,6 @@ export default function SignupScreen() {
       );
       router.push({ pathname: "/screens/verify-otp", params: { email } });
     } catch (error) {
-      console.error("Signup error:", error.message);
       showToast("error", "Signup Failed", error.message); //  Show error toast
     }
   };

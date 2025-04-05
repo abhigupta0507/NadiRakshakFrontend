@@ -56,8 +56,12 @@ export default function VerifyOTP() {
 
       if (response.ok) {
         await SecureStore.setItemAsync("accessToken", data.accessToken);
-        showToast("success", "OTP Verified", "Redirecting to home...");
-        setTimeout(() => router.push("/index"), 1500);
+
+        setTimeout(() => {
+          showToast("info", "🎉 50 Points Earned!", "You got 50 points for signing up! 🪙", "blue");
+        }, 500); 
+      
+        setTimeout(() => router.replace("/"), 3000);
       } else {
         showToast("error", "OTP Error", data.message || "Invalid OTP, try again.");
       }
@@ -153,7 +157,6 @@ export default function VerifyOTP() {
                   setResendEnabled(false); // optional safety
                 } catch (error) {
                   showToast("error", "Resend Failed", error.message);
-                  console.log(error);
                 }
               }}
             >

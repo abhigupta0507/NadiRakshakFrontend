@@ -90,7 +90,6 @@ export default function UpdateCampaign() {
           router.back();
         }
       } catch (error) {
-        console.error("Error fetching campaign data:", error);
         showToast("error", "Error", "Failed to load campaign details");
         router.back();
       } finally {
@@ -185,7 +184,6 @@ export default function UpdateCampaign() {
         }
       }
     } catch (error) {
-      console.error("Update Campaign Error:", error);
       showToast("error", "Error", "Something went wrong. Please try again.");
     }
 

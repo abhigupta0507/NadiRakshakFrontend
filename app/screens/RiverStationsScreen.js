@@ -62,7 +62,6 @@ export default function RiverStationsScreen() {
         );
       }
     } catch (error) {
-      console.error("Fetch Stations Error:", error);
       setError("Something went wrong. Please try again.");
       showToast("error", "Error", "Something went wrong. Please try again.");
     } finally {

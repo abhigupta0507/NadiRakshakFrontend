@@ -97,7 +97,6 @@ export default function CameraScreen() {
       setPhotoLocation(location);
       showToast("success", "Photo Captured", "Your photo has been taken successfully!");
     } catch (error) {
-      console.error("Capture Error:", error);
       showToast(
         "error",
         // "Failed",
@@ -162,7 +161,6 @@ export default function CameraScreen() {
         showToast("error", "Error", data.message || "Failed to send report.");
       }
     } catch (error) {
-      console.error("Send Report Error:", error);
       showToast("error", "Error", "Something went wrong. Please try again.");
     } finally {
       setIsSending(false);

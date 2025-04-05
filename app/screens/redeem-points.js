@@ -80,7 +80,6 @@ export default function PointsRedemptionScreen() {
   // This will be called every time the screen comes into focus
   useFocusEffect(
     useCallback(() => {
-      console.log("Screen focused - reloading data");
       fetchData();
       return () => {
         // Optional cleanup function
@@ -155,7 +154,6 @@ export default function PointsRedemptionScreen() {
         );
       }
     } catch (error) {
-      console.error("Fetch Store Items Error:", error);
       setError("Something went wrong. Please try again.");
       showToast("error", "Error", "Something went wrong. Please try again.");
     } finally {
@@ -307,7 +305,6 @@ export default function PointsRedemptionScreen() {
         );
       }
     } catch (error) {
-      console.error("Redeem Points Error:", error);
       showToast("error", "Error", "Something went wrong. Please try again.");
     }
   };
