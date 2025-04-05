@@ -506,7 +506,6 @@ const CampaignDetails = ({ route }) => {
                   Update
                 </Text>
               </TouchableOpacity>
-              {console.log(`${campaign.status} campaign details`)}
               {/* Delete Button */}
               <TouchableOpacity
                 onPress={handleDeleteCampaign}

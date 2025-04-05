@@ -39,7 +39,6 @@ export default function VerifyPasswordResetOTP() {
     }
 
     try {
-      console.log(`OTP Entered: ${otp} for ${email}`);
 
       const response = await fetch(`${BackendUrl}/auth/verify-reset-otp`, {
         method: "POST",

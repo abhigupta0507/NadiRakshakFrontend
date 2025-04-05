@@ -80,7 +80,6 @@ export default function PointsRedemptionScreen() {
   // This will be called every time the screen comes into focus
   useFocusEffect(
     useCallback(() => {
-      console.log("Screen focused - reloading data");
       fetchData();
       return () => {
         // Optional cleanup function

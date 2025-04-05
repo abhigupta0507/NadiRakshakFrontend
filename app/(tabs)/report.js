@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from "react";
-import { ScrollView, View, TouchableOpacity, ActivityIndicator, Text } from "react-native";
+import { ScrollView, View, TouchableOpacity, ActivityIndicator, Text,RefreshControl  } from "react-native";
 import { useRouter, useFocusEffect } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import * as SecureStore from "expo-secure-store";
@@ -17,6 +17,7 @@ export default function ReportsScreen() {
   const [drafts, setDrafts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [refreshing, setRefreshing] = useState(false);
 
   // This will be called when component mounts
   useEffect(() => {
@@ -26,7 +27,6 @@ export default function ReportsScreen() {
   // This will be called every time the screen comes into focus
   useFocusEffect(
     useCallback(() => {
-      console.log("Screen focused - reloading data");
       fetchData();
       return () => {
         // Optional cleanup function
@@ -44,7 +44,9 @@ export default function ReportsScreen() {
 
   const fetchReports = async () => {
     try {
-      setLoading(true);
+      if(!refreshing) {
+        setLoading(true);
+      }
       const token = await SecureStore.getItemAsync("accessToken");
       
       if (!token) {
@@ -70,11 +72,12 @@ export default function ReportsScreen() {
         showToast("error", "Error", result.message || "Failed to fetch reports");
       }
     } catch (error) {
-      console.error("Fetch Reports Error:", error);
       setError("Something went wrong. Please try again.");
       showToast("error", "Error", "Something went wrong. Please try again.");
     } finally {
-      setLoading(false);
+      if(!refreshing) {
+        setLoading(false);
+      }
     }
   };
 
@@ -108,8 +111,10 @@ export default function ReportsScreen() {
     }
   };
 
-  const handleRefresh = () => {
-    fetchData();
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    await fetchData();
+    setRefreshing(false);
   };
 
   // Render tab bar
@@ -189,11 +194,17 @@ export default function ReportsScreen() {
     
     return (
       <ScrollView
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingBottom: 80 }}
-        refreshing={loading}
-        onRefresh={handleRefresh}
-      >
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{ paddingBottom: 80 }}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={handleRefresh}
+              colors={["#3b82f6"]}
+              tintColor="#3b82f6"
+            />
+          }
+        >
         {currentData.map((item) => (
           <ReportCard 
             key={item._id}

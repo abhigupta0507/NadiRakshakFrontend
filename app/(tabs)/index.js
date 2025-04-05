@@ -76,7 +76,6 @@ const HomeScreen = () => {
         // Fetch news regardless of auth token status
         fetchNews();
       } catch (error) {
-        console.error("Error getting auth token:", error);
         // Still try to fetch news even if getting the token fails
         fetchNews();
       }
@@ -98,13 +97,11 @@ const HomeScreen = () => {
             }
           : {},
       };
-      console.log("Fetching news from:", url);
 
       const response = await fetch(url, requestOptions);
       const result = await response.text();
       const data = JSON.parse(result);
 
-      console.log("News data from API:", data);
 
       if (response.ok) {
         // Improved data handling
@@ -119,20 +116,16 @@ const HomeScreen = () => {
 
         if (newsItems.length > 0) {
           setNewsData(newsItems);
-          console.log("News data set:", newsItems);
         } else {
           // If the API returns an empty array, use fallback data
-          console.log("API returned empty news data, using fallback");
           setNewsData(newsArticles);
         }
       } else {
-        console.error("Error response:", data);
         showToast("error", "Error", data.message || "Failed to load News");
         // Fallback to default news data
         setNewsData(newsArticles);
       }
     } catch (error) {
-      console.error("Fetch error:", error);
       showToast("error", "Error", "Failed to load News");
       // Fallback to default news data
       setNewsData(newsArticles);

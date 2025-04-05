@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState ,useCallback} from "react";
 import {
   View,
   Text,
@@ -9,7 +9,7 @@ import {
   ActivityIndicator,
   Pressable,
 } from "react-native";
-import { useRouter } from "expo-router";
+import { useRouter ,useFocusEffect} from "expo-router";
 import * as SecureStore from "expo-secure-store";
 import { BackendUrl } from "../../secrets";
 import { MaterialIcons } from "@expo/vector-icons";
@@ -39,6 +39,18 @@ export default function ProfileScreen() {
     checkAuthentication();
   }, []);
 
+  useFocusEffect(
+    React.useCallback(() => {
+      const refreshProfile = async () => {
+        const token = await SecureStore.getItemAsync("accessToken");
+        if (token) {
+          fetchUserProfile(token);
+        }
+      };
+      refreshProfile();
+    }, [])
+  );
+
   const fetchUserProfile = async (token) => {
     try {
       setLoading(true);
@@ -63,7 +75,6 @@ export default function ProfileScreen() {
       }
     } catch (error) {
       showToast("error", "Error", "Something went wrong. Please try again.");
-      console.error("Fetch Profile Error:", error);
       setUser(null);
     } finally {
       setLoading(false);
@@ -107,7 +118,6 @@ export default function ProfileScreen() {
       }
     } catch (error) {
       showToast("error", "Error", "Something went wrong. Please try again.");
-      console.error("Update Profile Error:", error);
     }
   };
 
@@ -132,7 +142,7 @@ export default function ProfileScreen() {
     return (
       <View className="flex-1 justify-center items-center bg-gray-100">
         <ActivityIndicator size="large" color="#3b82f6" />
-        <Text className="mt-4 text-gray-700 font-medium">
+        <Text className="mt-4 text-blue-600 font-medium">
           Loading Profile...
         </Text>
       </View>

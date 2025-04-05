@@ -64,7 +64,6 @@ export default function CreateCampaign() {
       formData.append("endDate", endDate.toISOString());
       formData.append("maxParticipants", maxParticipants);
       formData.append("category", category);
-      // console.log(endDate.toISOString());
       const imageName = image.split("/").pop();
       const imageType = imageName.split(".").pop();
       formData.append("image", {
@@ -114,7 +113,8 @@ export default function CreateCampaign() {
 
   return (
     <SafeAreaView className="flex-1 bg-gray-50">
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <ScrollView showsVerticalScrollIndicator={false}
+       keyboardShouldPersistTaps={"always"}>
         {/* Header with image overlay */}
         <View className="relative">
           <Image 
