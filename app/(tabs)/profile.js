@@ -153,15 +153,22 @@ export default function ProfileScreen() {
       <ScrollView
         className="flex-grow px-4 py-6" // Changed from flex-1 to flex-grow
         contentContainerStyle={{ paddingBottom: 20 }} // Add some bottom padding
-        showsVerticalScrollIndicator={true} // Explicitly show scrollbar
+        showsVerticalScrollIndicator={false} // Explicitly show scrollbar
       >
         {/* Profile Card */}
         <View className="bg-white p-6 rounded-xl shadow-md relative items-center">
-          <MaterialIcons name="account-circle" size={80} color="#3b82f6" />
-          <Text className="text-2xl font-bold mt-2 text-gray-800">
-            {user.name}
-          </Text>
-          <Text className="text-gray-500">{user.email}</Text>
+          {/* Points display in top left */}
+          <TouchableOpacity
+            onPress={() => router.push("/screens/points-history")}
+            className="absolute top-4 left-4 flex-row items-center bg-yellow-100 px-3 py-1 rounded-full"
+          >
+            <MaterialIcons name="monetization-on" size={18} color="#f59e0b" />
+            <Text className="ml-1 font-bold text-yellow-600">
+              {user.points}
+            </Text>
+          </TouchableOpacity>
+
+          {/* Edit button - keep on top right */}
           <TouchableOpacity
             onPress={() => {
               setFormData(user);
@@ -171,6 +178,13 @@ export default function ProfileScreen() {
           >
             <MaterialIcons name="edit" size={22} color="#3b82f6" />
           </TouchableOpacity>
+
+          {/* User profile content */}
+          <MaterialIcons name="account-circle" size={80} color="#3b82f6" />
+          <Text className="text-2xl font-bold mt-2 text-gray-800">
+            {user.name}
+          </Text>
+          <Text className="text-gray-500">{user.email}</Text>
         </View>
         {/* Details Section */}
         <View className="bg-white mt-4 p-6 rounded-xl shadow-md">
@@ -333,6 +347,7 @@ export default function ProfileScreen() {
             borderRadius: 12,
           }}
         >
+          <Text>Hello</Text>
         </View>
       </ScrollView>
       <ToastComponent />
