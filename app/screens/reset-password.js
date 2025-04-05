@@ -74,7 +74,7 @@ export default function ResetPasswordScreen() {
       >
         <ScrollView
           contentContainerStyle={{ flexGrow: 1, justifyContent: "center", paddingHorizontal: 24 }}
-          keyboardShouldPersistTaps="handled"
+          keyboardShouldPersistTaps="always"
           showsVerticalScrollIndicator={false}
         >
           <View className="bg-white p-6 rounded-xl shadow-sm">

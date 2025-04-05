@@ -284,7 +284,7 @@ export default function EditDraftScreen() {
     <SafeAreaView className="bg-white flex-1">
       {/* <View className="flex-1 bg-white"> */}
 
-      <ScrollView className="flex-1 bg-white">
+      <ScrollView className="flex-1 bg-white"  keyboardShouldPersistTaps="always">
         {/* Header with "DRAFT" label */}
         <View className="w-full h-64 bg-gray-300 relative">
           <Image

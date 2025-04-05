@@ -106,7 +106,7 @@ export default function VerifyOTP() {
       <StatusBar style="dark" />
       <ScrollView
         contentContainerStyle={{ flexGrow: 1 }}
-        keyboardShouldPersistTaps="handled"
+        keyboardShouldPersistTaps="always"
         showsVerticalScrollIndicator={false}
       >
         <KeyboardAvoidingView

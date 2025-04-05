@@ -218,7 +218,7 @@ export default function UpdateCampaign() {
 
   return (
     <SafeAreaView className="flex-1 bg-gray-50">
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="always">
         {/* Header with image overlay */}
         <View className="relative">
           <Image 
