@@ -24,6 +24,10 @@ import ToastComponent, { showToast } from "@/app/components/Toast";
 import { useRouter } from "expo-router";
 import { useCallback } from "react";
 import WaterPollutionMap from "@/app/components/WaterPollutionMap";
+import actionItems from "@/assets/index-data/ActionItems";
+import initiatives from "@/assets/index-data/Initiatives";
+import statistics from "@/assets/index-data/Statistics";
+import IndexCard from "@/app/components/IndexCard";
 
 const { width, height } = Dimensions.get("window");
 
@@ -60,162 +64,6 @@ const HomeScreen = () => {
       setRefreshing(false);
     });
   }, []);
-
-  // Statistics data
-  const statistics = [
-    {
-      id: 1,
-      value: "80%",
-      description: "of ocean pollution comes from land-based activities",
-      icon: "factory",
-      color: "#0ea5e9",
-    },
-    {
-      id: 2,
-      value: "8M",
-      description: "tons of plastic enter our oceans every year",
-      icon: "trash-can-outline",
-      color: "#f43f5e",
-    },
-    {
-      id: 3,
-      value: "50%",
-      description: "of the world's coral reefs have died in the last 30 years",
-      icon: "waves",
-      color: "#f59e0b",
-    },
-    {
-      id: 4,
-      value: "1B",
-      description: "people lack access to clean drinking water globally",
-      icon: "water-outline",
-      color: "#6366f1",
-    },
-  ];
-
-  // Government initiatives
-  const initiatives = [
-    {
-      id: 1,
-      title: "Clean Water Act",
-      description: "Regulates the discharge of pollutants into water bodies",
-      icon: "bank",
-      color: "#3b82f6",
-      progress: 78,
-    },
-    {
-      id: 2,
-      title: "Ocean Cleanup Fund",
-      description: "$500M allocated for ocean cleanup technologies",
-      icon: "cash",
-      color: "#10b981",
-      progress: 42,
-    },
-    {
-      id: 3,
-      title: "Water Quality Monitoring",
-      description: "Real-time monitoring of water bodies across the country",
-      icon: "chart-line",
-      color: "#8b5cf6",
-      progress: 91,
-    },
-  ];
-
-  // News articles - Fallback data
-  const newsArticles = [
-    {
-      source: {
-        id: null,
-        name: "Policy News",
-      },
-      _id: "1",
-      title: "New policies to reduce industrial water pollution",
-      description:
-        "Government announces stricter regulations for industrial wastewater treatment...",
-      content: null,
-      url: "https://placehold.co/600x300/0284c7/FFFFFF?text=Water+Policy",
-      urlToImage:
-        "https://placehold.co/600x300/0284c7/FFFFFF?text=Water+Policy",
-      publishedAt: "2025-04-02T00:00:00.000Z",
-      category: "Policy",
-      __v: 0,
-      createdAt: "2025-04-02T00:00:00.000Z",
-      updatedAt: "2025-04-02T00:00:00.000Z",
-    },
-    {
-      source: {
-        id: null,
-        name: "Technology News",
-      },
-      _id: "2",
-      title: "Innovative filtration technology shows promising results",
-      description:
-        "Researchers develop new nanomaterial that can remove microplastics from water...",
-      content: null,
-      url: "https://placehold.co/600x300/0284c7/FFFFFF?text=Water+Tech",
-      urlToImage: "https://placehold.co/600x300/0284c7/FFFFFF?text=Water+Tech",
-      publishedAt: "2025-03-28T00:00:00.000Z",
-      category: "Technology",
-      __v: 0,
-      createdAt: "2025-03-28T00:00:00.000Z",
-      updatedAt: "2025-03-28T00:00:00.000Z",
-    },
-    {
-      source: {
-        id: null,
-        name: "Community News",
-      },
-      _id: "3",
-      title: "Community cleanup saves local river ecosystem",
-      description:
-        "Volunteers remove over 2 tons of garbage from the riverbank during weekend event...",
-      content: null,
-      url: "https://placehold.co/600x300/0284c7/FFFFFF?text=River+Cleanup",
-      urlToImage:
-        "https://placehold.co/600x300/0284c7/FFFFFF?text=River+Cleanup",
-      publishedAt: "2025-03-23T00:00:00.000Z",
-      category: "Community",
-      __v: 0,
-      createdAt: "2025-03-23T00:00:00.000Z",
-      updatedAt: "2025-03-23T00:00:00.000Z",
-    },
-  ];
-
-  // User action items
-  const actionItems = [
-    {
-      id: 1,
-      title: "Report Pollution",
-      description: "Document and submit evidence of water pollution",
-      icon: "camera",
-      color: "#0ea5e9",
-      to: "/camera",
-    },
-    {
-      id: 2,
-      title: "Join Cleanup",
-      description: "Find local cleanup events near you",
-      icon: "hand-heart",
-      color: "#10b981",
-      to: "/campaign",
-    },
-    {
-      id: 3,
-      title: "Water Quality",
-      description: "Check water quality in your area",
-      icon: "water-check",
-      color: "#8b5cf6",
-      to: "/screens/rivers",
-    },
-    {
-      id: 4,
-      title: "Submit Reports",
-      description: "Voice your concerns about pollution nearby",
-      icon: "comment-text-outline",
-      color: "#f59e0b",
-      to: "/report",
-    },
-  ];
 
   // Get auth token from secure store
   useEffect(() => {
@@ -480,27 +328,12 @@ const HomeScreen = () => {
           </View>
 
           {/* About NadiRakshak Section */}
-          <View className="bg-gray-100 rounded-2xl p-6 mb-8">
-            <Text className="text-blue-800 text-xl font-semibold mb-4">
-              About NadiRakshak
-            </Text>
-            <Text className="text-gray-700 text-base mb-4">
-              NadiRakshak is a crowdsourced river pollution reporting app that
-              empowers citizens to report pollution incidents in real time by
-              submitting images, GPS locations, and severity levels. The app
-              integrates government initiatives and offers historical insights
-              into river conditions, helping drive community action for cleaner
-              rivers.
-            </Text>
-            <TouchableOpacity
-              className="bg-blue-600 p-3 rounded-xl items-center"
-              onPress={() => router.push("/report")}
-            >
-              <Text className="text-white font-medium">
-                Report Pollution Now
-              </Text>
-            </TouchableOpacity>
-          </View>
+          <IndexCard
+            title={"About NadiRakshak"}
+            description={`NadiRakshak is a crowdsourced river pollution reporting app that empowers citizens to report pollution incidents in real time by submitting images, GPS locations, and severity levels. The app integrates government initiatives and offers historical insights into river conditions, helping drive community action for cleaner rivers.`}
+            routeName={`Report Pollution Now`}
+            route={`/report`}
+          />
 
           {/* Statistics Cards */}
           <Text className="text-gray-800 text-lg font-semibold mb-4">
@@ -555,6 +388,12 @@ const HomeScreen = () => {
 
           {/* Water Quality Map Placeholder */}
           <WaterPollutionMap />
+          <IndexCard
+            title={"Track River Health"}
+            description={`Explore the current condition of major Indian rivers with live updates on water temperature and oxygen levels. This section helps you stay informed about river health and encourages awareness towards preserving our water bodies.`}
+            routeName={`Learn More`}
+            route={`/screens/rivers`}
+          />
 
           {/* Government Initiatives */}
           <Text className="text-gray-800 text-lg font-semibold mb-4">

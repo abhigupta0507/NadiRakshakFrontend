@@ -35,10 +35,9 @@ export default function ProfileScreen() {
         fetchUserProfile(token);
       }
     };
-  
+
     checkAuthentication();
   }, []);
-  
 
   const fetchUserProfile = async (token) => {
     try {
@@ -55,7 +54,11 @@ export default function ProfileScreen() {
         setUser(result.data.profile);
         setFormData(result.data.profile);
       } else {
-        showToast("error", "Error", result.message || "Failed to fetch profile.");
+        showToast(
+          "error",
+          "Error",
+          result.message || "Failed to fetch profile."
+        );
         setUser(null);
       }
     } catch (error) {
@@ -96,7 +99,11 @@ export default function ProfileScreen() {
         setUser((prev) => ({ ...prev, ...payload }));
         setModalVisible(false);
       } else {
-        showToast("error", "Error", result.message || "Failed to update profile.");
+        showToast(
+          "error",
+          "Error",
+          result.message || "Failed to update profile."
+        );
       }
     } catch (error) {
       showToast("error", "Error", "Something went wrong. Please try again.");
@@ -111,10 +118,9 @@ export default function ProfileScreen() {
   };
 
   // Prevent rendering profile screen if authentication is not determined
-if (isAuthenticated === null || isAuthenticated === false) {
-  return null; // Don't render anything while checking auth or if unauthorized
-}
-
+  if (isAuthenticated === null || isAuthenticated === false) {
+    return null; // Don't render anything while checking auth or if unauthorized
+  }
 
   // If not authenticated, don't render anything (redirection should already be in progress)
   if (!isAuthenticated) {
@@ -126,7 +132,9 @@ if (isAuthenticated === null || isAuthenticated === false) {
     return (
       <View className="flex-1 justify-center items-center bg-gray-100">
         <ActivityIndicator size="large" color="#3b82f6" />
-        <Text className="mt-4 text-gray-700 font-medium">Loading Profile...</Text>
+        <Text className="mt-4 text-gray-700 font-medium">
+          Loading Profile...
+        </Text>
       </View>
     );
   }
@@ -142,11 +150,17 @@ if (isAuthenticated === null || isAuthenticated === false) {
 
   return (
     <SafeAreaView className="flex-1 bg-gray-100">
-      <ScrollView className="flex-1 px-4 py-6">
+      <ScrollView
+        className="flex-grow px-4 py-6" // Changed from flex-1 to flex-grow
+        contentContainerStyle={{ paddingBottom: 20 }} // Add some bottom padding
+        showsVerticalScrollIndicator={true} // Explicitly show scrollbar
+      >
         {/* Profile Card */}
         <View className="bg-white p-6 rounded-xl shadow-md relative items-center">
           <MaterialIcons name="account-circle" size={80} color="#3b82f6" />
-          <Text className="text-2xl font-bold mt-2 text-gray-800">{user.name}</Text>
+          <Text className="text-2xl font-bold mt-2 text-gray-800">
+            {user.name}
+          </Text>
           <Text className="text-gray-500">{user.email}</Text>
           <TouchableOpacity
             onPress={() => {
@@ -171,25 +185,33 @@ if (isAuthenticated === null || isAuthenticated === false) {
         </View>
         {/* Statistics Section */}
         <View className="bg-white mt-4 p-6 rounded-xl shadow-md">
-          <Text className="text-xl font-bold mb-4 text-gray-800">Statistics</Text>
+          <Text className="text-xl font-bold mb-4 text-gray-800">
+            Statistics
+          </Text>
           <View className="flex-row justify-between">
             <View className="flex-1 items-center mx-1">
               <Text className="text-2xl font-bold text-blue-600 mb-1">
                 {user.stats?.totalCampaignsCreated || 0}
               </Text>
-              <Text className="text-sm text-gray-600 text-center">Campaigns Created</Text>
+              <Text className="text-sm text-gray-600 text-center">
+                Campaigns Created
+              </Text>
             </View>
             <View className="flex-1 items-center mx-1">
               <Text className="text-2xl font-bold text-blue-600 mb-1">
                 {user.stats?.totalCampaignsJoined || 0}
               </Text>
-              <Text className="text-sm text-gray-600 text-center">Campaigns Joined</Text>
+              <Text className="text-sm text-gray-600 text-center">
+                Campaigns Joined
+              </Text>
             </View>
             <View className="flex-1 items-center mx-1">
               <Text className="text-2xl font-bold text-blue-600 mb-1">
                 {user.stats?.totalParticipantsManaged || 0}
               </Text>
-              <Text className="text-sm text-gray-600 text-center">Participants Managed</Text>
+              <Text className="text-sm text-gray-600 text-center">
+                Participants Managed
+              </Text>
             </View>
           </View>
         </View>
@@ -229,13 +251,17 @@ if (isAuthenticated === null || isAuthenticated === false) {
               className="bg-white p-6 rounded-xl w-11/12"
               onStartShouldSetResponder={() => true}
             >
-              <Text className="text-xl font-bold mb-4 text-center">Edit Profile</Text>
+              <Text className="text-xl font-bold mb-4 text-center">
+                Edit Profile
+              </Text>
               <View className="mb-4">
                 <Text className="text-gray-600">Name</Text>
                 <TextInput
                   className="border border-gray-300 p-3 rounded-md mt-1"
                   value={formData.name?.toString()}
-                  onChangeText={(text) => setFormData({ ...formData, name: text })}
+                  onChangeText={(text) =>
+                    setFormData({ ...formData, name: text })
+                  }
                 />
               </View>
               <View className="mb-4">
@@ -243,7 +269,9 @@ if (isAuthenticated === null || isAuthenticated === false) {
                 <TextInput
                   className="border border-gray-300 p-3 rounded-md mt-1"
                   value={formData.mobileNumber?.toString()}
-                  onChangeText={(text) => setFormData({ ...formData, mobileNumber: text })}
+                  onChangeText={(text) =>
+                    setFormData({ ...formData, mobileNumber: text })
+                  }
                   keyboardType="phone-pad"
                 />
               </View>
@@ -252,7 +280,9 @@ if (isAuthenticated === null || isAuthenticated === false) {
                 <TextInput
                   className="border border-gray-300 p-3 rounded-md mt-1"
                   value={formData.age?.toString()}
-                  onChangeText={(text) => setFormData({ ...formData, age: text })}
+                  onChangeText={(text) =>
+                    setFormData({ ...formData, age: text })
+                  }
                   keyboardType="number-pad"
                 />
               </View>
@@ -261,7 +291,9 @@ if (isAuthenticated === null || isAuthenticated === false) {
                 <TextInput
                   className="border border-gray-300 p-3 rounded-md mt-1"
                   value={formData.city?.toString()}
-                  onChangeText={(text) => setFormData({ ...formData, city: text })}
+                  onChangeText={(text) =>
+                    setFormData({ ...formData, city: text })
+                  }
                 />
               </View>
               <View className="mb-6">
@@ -269,7 +301,9 @@ if (isAuthenticated === null || isAuthenticated === false) {
                 <TextInput
                   className="border border-gray-300 p-3 rounded-md mt-1"
                   value={formData.state?.toString()}
-                  onChangeText={(text) => setFormData({ ...formData, state: text })}
+                  onChangeText={(text) =>
+                    setFormData({ ...formData, state: text })
+                  }
                 />
               </View>
               <View className="flex-row justify-between mt-2">
@@ -278,13 +312,13 @@ if (isAuthenticated === null || isAuthenticated === false) {
                     setFormData(user);
                     setModalVisible(false);
                   }}
-                  className="bg-gray-300 py-3 rounded-lg w-[48%] items-center"
+                  className="bg-gray-300 py-3 pb-4 rounded-lg w-[48%] items-center"
                 >
                   <Text className="font-medium">Cancel</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   onPress={updateProfile}
-                  className="bg-blue-600 py-3 rounded-lg w-[48%] items-center"
+                  className="bg-blue-600 py-3 pb-4 rounded-lg w-[48%] items-center"
                 >
                   <Text className="text-white font-medium">Save Changes</Text>
                 </TouchableOpacity>
@@ -292,6 +326,14 @@ if (isAuthenticated === null || isAuthenticated === false) {
             </View>
           </Pressable>
         </Modal>
+        <View
+          style={{
+            height: 50,
+            marginTop: 20,
+            borderRadius: 12,
+          }}
+        >
+        </View>
       </ScrollView>
       <ToastComponent />
     </SafeAreaView>

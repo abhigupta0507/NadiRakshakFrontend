@@ -77,7 +77,7 @@ export default function SignupScreen() {
   return (
     <SafeAreaView className="flex-1 bg-gray-50">
       <StatusBar style="dark" />
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="always">
         {/* Header with Image Overlay */}
         <View className="relative">
           <Image
