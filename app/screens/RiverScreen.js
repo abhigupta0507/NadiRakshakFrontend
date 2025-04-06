@@ -32,8 +32,8 @@ export default function RiversScreen() {
 
       if (!token) {
         showToast("error", "Unauthorized", "Please log in again.");
-        setTimeout(() => router.push("/screens/login"), 1500);
-        return;
+        // setTimeout(() => router.push("/screens/login"), 1500);
+        // return;
       }
 
       const response = await fetch(`${BackendUrl}/rivers`, {

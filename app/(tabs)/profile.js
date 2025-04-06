@@ -29,7 +29,7 @@ export default function ProfileScreen() {
       const token = await SecureStore.getItemAsync("accessToken");
       if (!token) {
         setIsAuthenticated(false);
-        router.replace("/screens/login"); // Redirect if no token
+        router.replace("/");
       } else {
         setIsAuthenticated(true);
         fetchUserProfile(token);
@@ -86,8 +86,8 @@ export default function ProfileScreen() {
       const token = await SecureStore.getItemAsync("accessToken");
       if (!token) {
         showToast("error", "Unauthorized", "Please log in again.");
-        router.replace("/screens/login");
-        return;
+        // router.replace("/");
+        // return;
       }
       const payload = {
         name: formData.name,
@@ -124,7 +124,7 @@ export default function ProfileScreen() {
   const handleLogout = async () => {
     await SecureStore.deleteItemAsync("accessToken");
     await SecureStore.deleteItemAsync("refreshToken");
-    router.replace("/screens/login");
+    router.replace("/");
   };
 
   // Prevent rendering profile screen if authentication is not determined

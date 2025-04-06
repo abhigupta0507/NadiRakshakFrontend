@@ -41,8 +41,8 @@ export default function EditDraftScreen() {
       
       if (!token) {
         showToast("error", "Unauthorized", "Please log in again.");
-        setTimeout(() => router.push("/screens/login"), 1500);
-        return;
+        // setTimeout(() => router.push("/screens/login"), 1500);
+        // return;
       }
 
       const response = await fetch(`${BackendUrl}/reports/drafts/${draftId}`, {
@@ -78,9 +78,9 @@ export default function EditDraftScreen() {
       
       if (!token) {
         showToast("error", "Unauthorized", "Please log in again.");
-        setTimeout(() => router.push("/screens/login"), 1500);
+        // setTimeout(() => router.push("/screens/login"), 1500);
 
-        return;
+        // return;
       }
 
       if(description === ""){
@@ -146,8 +146,8 @@ export default function EditDraftScreen() {
       
       if (!token) {
         showToast("error", "Unauthorized", "Please log in again.");
-        setTimeout(() => router.push("../screens.login"), 1500);
-        return;
+        // setTimeout(() => router.push("../screens.login"), 1500);
+        // return;
       }
       
       const response = await fetch(`${BackendUrl}/reports/submit/${draftId}/`, {
@@ -206,8 +206,8 @@ export default function EditDraftScreen() {
       
       if (!token) {
         showToast("error", "Unauthorized", "Please log in again.");
-        setTimeout(() => router.push("/screens/login"), 1500);
-        return;
+        // setTimeout(() => router.push("/screens/login"), 1500);
+        // return;
       }
 
       const response = await fetch(`${BackendUrl}/reports/drafts/${draftId}`, {

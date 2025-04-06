@@ -162,6 +162,18 @@ export default function LoginScreen() {
                   </Text>
                 </TouchableOpacity>
               </View>
+              <View className="flex-row justify-center m">
+                <Text className="text-gray-700">Go back to </Text>
+
+                <TouchableOpacity>
+                  <Text
+                    className="text-blue-600 font-semibold"
+                    onPress={() => router.push("/")}
+                  >
+                    Home
+                  </Text>
+                </TouchableOpacity>
+              </View>
             </View>
           </View>
         </ScrollView>

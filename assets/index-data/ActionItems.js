@@ -1,11 +1,11 @@
 const actionItems = [
   {
     id: 1,
-    title: "Report Pollution",
-    description: "Document and submit evidence of water pollution",
-    icon: "camera",
-    color: "#0ea5e9",
-    to: "/camera",
+    title: "Water Quality",
+    description: "Check water quality in your area",
+    icon: "water-check",
+    color: "#8b5cf6",
+    to: "/screens/rivers",
   },
   {
     id: 2,
@@ -17,11 +17,11 @@ const actionItems = [
   },
   {
     id: 3,
-    title: "Water Quality",
-    description: "Check water quality in your area",
-    icon: "water-check",
-    color: "#8b5cf6",
-    to: "/screens/rivers",
+    title: "Report Pollution",
+    description: "Document and submit evidence of water pollution",
+    icon: "camera",
+    color: "#0ea5e9",
+    to: "/camera",
   },
   {
     id: 4,

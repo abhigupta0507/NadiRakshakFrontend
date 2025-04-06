@@ -98,8 +98,8 @@ export default function PointsRedemptionScreen() {
 
       if (!token) {
         showToast("error", "Unauthorized", "Please log in again.");
-        router.push("/screens/login");
-        return;
+        // router.push("/screens/login");
+        // return;
       }
 
       const response = await fetch(`${BackendUrl}/auth/points`, {
@@ -115,10 +115,10 @@ export default function PointsRedemptionScreen() {
       if (response.ok) {
         setUserPoints(result.data.points || 0);
       } else {
-        console.error("Error fetching user info:", result.message);
+        // console.error("Error fetching user info:", result.message);
       }
     } catch (error) {
-      console.error("Fetch User Info Error:", error);
+      // console.error("Fetch User Info Error:", error);
     }
   };
 
@@ -129,8 +129,8 @@ export default function PointsRedemptionScreen() {
 
       if (!token) {
         showToast("error", "Unauthorized", "Please log in again.");
-        router.push("/screens/login");
-        return;
+        // router.push("/screens/login");
+        // return;
       }
 
       const response = await fetch(`${BackendUrl}/store/items`, {
@@ -167,8 +167,8 @@ export default function PointsRedemptionScreen() {
 
       if (!token) {
         showToast("error", "Unauthorized", "Please log in again.");
-        router.push("/screens/login");
-        return;
+        // router.push("/screens/login");
+        // return;
       }
 
       const response = await fetch(`${BackendUrl}/store/orders`, {
@@ -263,8 +263,8 @@ export default function PointsRedemptionScreen() {
 
       if (!token) {
         showToast("error", "Unauthorized", "Please log in again.");
-        router.push("/screens/login");
-        return;
+        // router.push("/screens/login");
+        // return;
       }
 
       const response = await fetch(`${BackendUrl}/store/orders`, {

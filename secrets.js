@@ -1,0 +1,1 @@
+export const BackendUrl = "https://nadirakshak-backend.onrender.com/api/v1"

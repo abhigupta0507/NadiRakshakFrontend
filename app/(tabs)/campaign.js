@@ -41,8 +41,8 @@ export default function CampaignsScreen() {
       
       if (!token) {
         showToast("error", "Unauthorized", "Please log in again.");
-        router.push("/screens/login");
-        return;
+        // router.push("/screens/login");
+        // return;
       }
 
       const response = await fetch(`${BackendUrl}/campaigns`, {
