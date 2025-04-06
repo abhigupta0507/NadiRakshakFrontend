@@ -15,15 +15,14 @@ This is an [Expo](https://expo.dev) project created with [`create-expo-app`](htt
    ```bash
     npx expo start
    ```
+
 # Backend Repository
 https://github.com/abhigupta0507/NadiRakshak-Backend
 
 # Video Demonstration of our App
 https://youtu.be/qi_C-JvqC_4
 
-## Join the community
+# Presentation of the App
+https://www.canva.com/design/DAGj4ZQ4hlo/pGTqXJyvZGhNsgABaEqSzg/edit?utm_content=DAGj4ZQ4hlo&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton
 
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+APK is under development...
