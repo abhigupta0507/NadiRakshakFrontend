@@ -51,8 +51,8 @@ export default function ReportsScreen() {
       
       if (!token) {
         showToast("error", "Unauthorized", "Please log in again.");
-        router.push("/screens/login");
-        return;
+        // router.push("/screens/login");
+        // return;
       }
 
       const response = await fetch(`${BackendUrl}/reports/my-reports`, {
@@ -87,8 +87,8 @@ export default function ReportsScreen() {
       
       if (!token) {
         showToast("error", "Unauthorized", "Please log in again.");
-        router.push("/screens/login");
-        return;
+        // router.push("/screens/login");
+        // return;
       }
 
       const response = await fetch(`${BackendUrl}/reports/drafts/`, {
@@ -104,10 +104,10 @@ export default function ReportsScreen() {
       if (response.ok) {
         setDrafts(result.drafts || []);
       } else {
-        console.error("Error fetching drafts:", result.message);
+        // console.error("Error fetching drafts:", result.message);
       }
     } catch (error) {
-      console.error("Fetch Drafts Error:", error);
+      // console.error("Fetch Drafts Error:", error);
     }
   };
 

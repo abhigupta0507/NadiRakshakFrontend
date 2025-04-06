@@ -133,7 +133,7 @@ export default function CameraScreen() {
       const token = await SecureStore.getItemAsync("accessToken");
       if (!token) {
         showToast("error", "Unauthorized", "User not authenticated");
-        return;
+        // return;
       }
 
       const formData = new FormData();

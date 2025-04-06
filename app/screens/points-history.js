@@ -33,8 +33,8 @@ const PointsHistory = () => {
         const token = await SecureStore.getItemAsync("accessToken");
         if (!token) {
           showToast("error", "Unauthorized", "Please log in again.");
-          router.push("/login");
-          return;
+          // router.push("/login");
+          // return;
         }
         setAuthToken(token);
       } catch (error) {
@@ -43,7 +43,7 @@ const PointsHistory = () => {
           "Error",
           "Authentication error. Please log in again."
         );
-        router.push("./login");
+        // router.push("./login");
       }
     };
 

@@ -7,13 +7,13 @@ import ToastComponent, {showToast} from "./components/Toast";
 export default function AuthMiddleware() {
   const segments = useSegments();
   const router = useRouter();
-
+  
+  
   useEffect(() => {
     const checkAuth = async () => {
       // Create an array of excluded paths
       const excludedPaths = [
-        "/index",
-        "/campaign",
+        "/(tabs)",
         "/screens/forgot-password",
         "/screens/login",
         "/screens/reset-password",
@@ -22,18 +22,19 @@ export default function AuthMiddleware() {
         "/screens/RiverStationsScreen",
         "/screens/signup",
         "/screens/StationDetailsScreen",
+        "/screens/river-stations/[riverId]",
+        "/screens/station-details/[riverId]/[stationCode]",
         "/screens/reset-password",
         "/screens/verify-otp",
         "/screens/verify-reset-otp",
       ];
-
+      
       // Get the current path
       const currentPath = "/" + segments.join("/");
       
       // Check if the current path is in the excluded list
-      const isExcludedPath = excludedPaths.some(path => 
-        currentPath === path || currentPath.startsWith(`${path}/`)
-      );
+      const isExcludedPath = excludedPaths.includes(currentPath);
+
       
       // If the current path is excluded, skip authentication check
       if (isExcludedPath) {
@@ -53,24 +54,30 @@ export default function AuthMiddleware() {
 
         if (!refreshToken) {
           showToast("error","Error","Session Expired");
-          return router.replace("/screens/login");
+          showToast("error", "Unauthorized", "Please log in again.");
+          // setTimeout(() => router.push("/screens/login"), 1000);
+          router.replace("/screens/login");
+          return;
         }
         
         const refreshResult = await refreshAccessToken(refreshToken);
         
         if (refreshResult.success) {
           await SecureStore.setItemAsync("accessToken", refreshResult.accessToken);
-
+          
           const retryProfileResult = await fetchUserProfile(refreshResult.accessToken);
           
           if (retryProfileResult.success) return;
         }
         
         showToast("error","Error","Session Expired");
+        
         router.replace("/screens/login");
+        return
       } catch (error) {
         showToast("error","Error","Session Expired");
         router.replace("/screens/login");
+        return
       }
     };
 
@@ -131,6 +138,7 @@ export default function AuthMiddleware() {
       return { success: false };
     }
   };
+
 
   return null;
 }
