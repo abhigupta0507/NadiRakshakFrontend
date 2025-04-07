@@ -3,6 +3,7 @@
 This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
 
 ## Get started
+0.. First clone this repo into your local machine.
 
 1. Install dependencies
    ```
@@ -12,10 +13,11 @@ This is an [Expo](https://expo.dev) project created with [`create-expo-app`](htt
    ```
    npx expo start
    ```
-4. Download Expo GO App from play store.
-5. For Android, Scan the QR code shown on terminal using expo app
+4. Download EXPO GO App from play store in your mobile.
+5. For Android, Scan the QR code shown on terminal, using expo app
 6. For IOS, scan the QR code using camera app.
 
+If you have any trouble setting up the project, mail us at nadirakshak@gmail.com
 
 # Backend Repository
 https://github.com/abhigupta0507/NadiRakshak-Backend
