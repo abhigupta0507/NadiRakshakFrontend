@@ -13,9 +13,9 @@ This is an [Expo](https://expo.dev) project created with [`create-expo-app`](htt
    ```
    npx expo start
    ```
-4. Download EXPO GO App from play store in your mobile.
+4. Download EXPO GO App from play store or App Store in your mobile.
 5. For Android, Scan the QR code shown on terminal, using expo app
-6. For IOS, scan the QR code using camera app.
+6. For IOS, scan the QR code using camera app , This will open the app in EXPO GO app.
 
 If you have any trouble setting up the project, mail us at nadirakshak@gmail.com
 
