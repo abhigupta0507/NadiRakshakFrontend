@@ -17,6 +17,8 @@ This is an [Expo](https://expo.dev) project created with [`create-expo-app`](htt
 5. For Android, Scan the QR code shown on terminal, using expo app
 6. For IOS, scan the QR code using camera app , This will open the app in EXPO GO app.
 
+make sure you are on the same internet connection i.e. the internet connection on the phone and the laptop/computer.
+
 If you have any trouble setting up the project, mail us at nadirakshak@gmail.com
 
 # Backend Repository
