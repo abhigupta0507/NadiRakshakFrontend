@@ -16,6 +16,7 @@ This is an [Expo](https://expo.dev) project created with [`create-expo-app`](htt
 4. Download EXPO GO App from play store or App Store in your mobile.
 5. For Android, Scan the QR code shown on terminal, using expo app
 6. For IOS, scan the QR code using camera app , This will open the app in EXPO GO app.
+7. Note: Please ensure that the both the mobile device and the local machine (on which the expo server is running) are connected to the same network(wifi/hotspot).  
 
 make sure you are on the same internet connection i.e. the internet connection on the phone and the laptop/computer.
 
